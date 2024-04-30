@@ -20,6 +20,8 @@ jobs:
         run: |
           install.packages("tidyverse")  # Asegúrate de incluir aquí todos los paquetes que necesites
           install.packages("googlesheets4")
+          install.packages("dplyr")
+          
           
       - name: Run script
-        run: Rscript prueba01.R
+        run: Rscript reporte01.Rmd
