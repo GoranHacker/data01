@@ -11,24 +11,32 @@ Probando el uso de datos en la nube y su publicacion automatica en base a R.
 Yanko Goicovic. Unidad de Inteligencia SERNAPESCA.
 
 ```{r}
-## Acceso a la DATA ####
-# Instalar y cargar el paquete googlesheets4
-if (!requireNamespace("googlesheets4", quietly = TRUE)) {
-  install.packages("googlesheets4")
-}
-library(googlesheets4)
-# Instalar y cargar el paquete dplyr
-if (!requireNamespace("dplyr", quietly = TRUE)) {
-  install.packages("dplyr")
-}
-library(dplyr)
+if (!require(httr)) install.packages("httr", dependencies = TRUE)
+if (!require(readxl)) install.packages("readxl", dependencies = TRUE)
+library(httr)
+library(readxl)
 
-# Leer los datos de la hoja de cálculo
-sheet_url <- "https://docs.google.com/spreadsheets/d/1E_JWm4vF41BseLDe5-WI-yy7CptzhW5GuOUWxdliNmg/edit?usp=sharing"
-datos <- read_sheet(sheet_url)
+
+# URL del archivo Excel publicado
+excel_url <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vSNvzxvxCHOZNa1FlmSHuhm5sqrNz5wOGCMtXYUqRGQ8uBJfaRSvyGFqm4bcihb8myUV7mOXlTtI7wh/pub?output=xlsx"
+
+# Descargar el archivo Excel a un archivo temporal
+temp_file <- tempfile(fileext = ".xlsx")
+download.file(excel_url, temp_file, mode = "wb")
+
+# Leer el archivo Excel desde el archivo temporal
+datos <- read_excel(temp_file)
+
+# Opcionalmente, eliminar el archivo temporal si ya no se necesita
+unlink(temp_file)
 
 # Ver los datos
 print(datos)
+
+## Calculo simple ####
+# Calculando la media de una columna llamada 'PRECIO_KG'
+media_PRECIO_KG <- mean(datos$PRECIO_KG, na.rm = TRUE)
+print(media_PRECIO_KG)
 
 ## Filtrar los datos por la última fecha ##
 # Identificar la última fecha
