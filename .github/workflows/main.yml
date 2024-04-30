@@ -2,9 +2,9 @@ name: Run R Script
 
 on:
   schedule:
-    - cron:  '0 10 * * *'  # Ejecuta todos los días a las 10 AM UTC
-    - cron:  '0 13 * * *'  # Ejecuta todos los días a la 1 PM UTC
-    - cron:  '0 16 * * *'  # Ejecuta todos los días a las 4 PM UTC
+    - cron:  '0 14 * * *'  # Ejecuta todos los días a las 10 AM UTC
+    - cron:  '0 17 * * *'  # Ejecuta todos los días a la 1 PM UTC
+    - cron:  '0 20 * * *'  # Ejecuta todos los días a las 4 PM UTC
 
 jobs:
   run-r-script:
