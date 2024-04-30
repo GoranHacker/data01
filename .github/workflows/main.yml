@@ -2,11 +2,11 @@ name: Run R Script
 
 on:
   schedule:
-    - cron: '*/1 * * * *'  # Ejecuta cada 3 minutos
+    - cron: '*/1 * * * *'  
 
 jobs:
   run-r-script:
-    runs-on: ubuntu-20.04  # Cambia a una versión específica de Ubuntu
+    runs-on: ubuntu-20.04  
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -14,13 +14,13 @@ jobs:
       - name: Setup R
         uses: r-lib/actions/setup-r@v1
         with:
-          r-version: '4.x'  # Especifica la versión de R que deseas usar
+          r-version: '4.x'  
           
       - name: Install dependencies
         run: |
-          install.packages("tidyverse")  # Asegúrate de incluir aquí todos los paquetes que necesites
-          install.packages("googlesheets4")
-          install.packages("dplyr")
+          R -e 'install.packages("tidyverse")'
+          R -e 'install.packages("googlesheets4")'
+          R -e 'install.packages("dplyr")'
           
       - name: Run script
         run: Rscript -e "rmarkdown::render('reporte01.Rmd')"
