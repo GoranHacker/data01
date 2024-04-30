@@ -33,4 +33,4 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./  # Asegúrate de que el directorio aquí coincida con donde tu archivo HTML es generado
-          keep_files: true  # Esto mantiene archivos existentes en la rama de GitHub Pages
+        
