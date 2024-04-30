@@ -23,7 +23,7 @@ jobs:
       
       - name: Install R packages
         run: |
-          Rscript -e "install.packages(c('tidyverse', 'httr', 'dplyr', 'readxl'), dependencies = TRUE)"
+          Rscript -e "install.packages(c('tidyverse', 'httr', 'dplyr', 'readxl', 'knitr', 'kableExtra', 'tidyr'), dependencies = TRUE)"
       
       - name: Run R script
         run: Rscript -e "rmarkdown::render('reporte01.Rmd')"
