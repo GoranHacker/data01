@@ -1,23 +1,21 @@
 ---
 title: "Análisis de Datos"
-author: "Tu Nombre"
-date: "`r Sys.Date()`"  # Esto insertará la fecha actual
-output: html_document
+author: "Yanko Goicovic"
+date: "`r Sys.Date()`"
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
 ---
 
-# Introducción
-
-Probando el uso de datos en la nube y su publicacion automatica en base a R.
-Yanko Goicovic. Unidad de Inteligencia SERNAPESCA.
-
-```{r}
-if (!require(httr)) install.packages("httr", dependencies = TRUE)
-if (!require(readxl)) install.packages("readxl", dependencies = TRUE)
-if (!require(dplyr)) install.packages("dplyr", dependencies = TRUE)
-library(dplyr)
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 library(httr)
 library(readxl)
-
+library(dplyr)
+library(knitr)
+library(kableExtra)
+library(tidyr)
 
 # URL del archivo Excel publicado
 excel_url <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vSNvzxvxCHOZNa1FlmSHuhm5sqrNz5wOGCMtXYUqRGQ8uBJfaRSvyGFqm4bcihb8myUV7mOXlTtI7wh/pub?output=xlsx"
@@ -32,14 +30,6 @@ datos <- read_excel(temp_file)
 # Opcionalmente, eliminar el archivo temporal si ya no se necesita
 unlink(temp_file)
 
-# Ver los datos
-print(datos)
-
-## Calculo simple ####
-# Calculando la media de una columna llamada 'PRECIO_KG'
-media_PRECIO_KG <- mean(datos$PRECIO_KG, na.rm = TRUE)
-print(media_PRECIO_KG)
-
 ## Filtrar los datos por la última fecha ##
 # Identificar la última fecha
 ultima_fecha <- max(datos$FECHA)
@@ -47,15 +37,57 @@ ultima_fecha <- max(datos$FECHA)
 # Filtrar los datos para incluir solo la última fecha
 datos_ultima_fecha <- datos[datos$FECHA == ultima_fecha, ]
 
-# Imprimir la fecha
-print(paste("Fecha:", ultima_fecha))
 
-## Calcular los precios por especie para la última fecha ##
-precios_por_especie <- datos_ultima_fecha %>%
-  group_by(ESPECIE) %>%
-  summarize(PRECIO_KG = mean(PRECIO_KG, na.rm = TRUE),
-            PRECIO_CAJA = mean(PRECIO_CAJA, na.rm = TRUE),
-            PRECIO_MALLA = mean(PRECIO_MALLA, na.rm = TRUE))
 
-# Presentar los resultados en forma de tabla
-knitr::kable(precios_por_especie, caption = "Precios por especie para la última fecha")
+
+```{r results-table, results='asis', echo=FALSE}
+if(nrow(datos_ultima_fecha) > 0) {
+  ## Calcular los precios por especie para la última fecha ##
+  precios_por_especie <- datos_ultima_fecha %>%
+    group_by(ESPECIE) %>%
+    summarize(
+      PRECIO_KG = mean(PRECIO_KG, na.rm = TRUE),
+      PRECIO_CAJA = mean(PRECIO_CAJA, na.rm = TRUE),
+      PRECIO_MALLA = mean(PRECIO_MALLA, na.rm = TRUE)
+    )
+  
+  # Formatear la última fecha para incluirla en el título de la tabla
+  fecha_formateada <- format(as.Date(ultima_fecha), "%d de %B de %Y")
+  
+  # Presentar los resultados en forma de tabla
+  precios_por_especie %>%
+    kable("html", caption = paste("Precios por especie para el", fecha_formateada)) %>%
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed", "bordered"))
+} else {
+  print("No hay datos disponibles para la última fecha.")
+}
+
+
+
+
+```{r alertas, echo=FALSE}
+# Filtrar datos para MERLUZA COMUN
+merluza_comun <- precios_por_especie %>%
+  filter(ESPECIE == "MERLUZA COMUN") %>%
+  summarize(
+    PRECIO_CAJA_MIN = min(PRECIO_CAJA, na.rm = TRUE),
+    PRECIO_KG_MIN = min(PRECIO_KG, na.rm = TRUE)
+  )
+
+# Verificar condiciones para MERLUZA COMUN
+if(nrow(merluza_comun) > 0 && (merluza_comun$PRECIO_CAJA_MIN <= 15000 || merluza_comun$PRECIO_KG_MIN <= 2000)) {
+  print("Precio MERLUZA COMUN Riesgoso")
+}
+
+# Filtrar datos para MERLUZA AUSTRAL
+merluza_austral <- precios_por_especie %>%
+  filter(ESPECIE == "MERLUZA AUSTRAL") %>%
+  summarize(
+    PRECIO_CAJA_MIN = min(PRECIO_CAJA, na.rm = TRUE),
+    PRECIO_KG_MIN = min(PRECIO_KG, na.rm = TRUE)
+  )
+
+# Verificar condiciones para MERLUZA AUSTRAL
+if(nrow(merluza_austral) > 0 && (merluza_austral$PRECIO_CAJA_MIN <= 25000 || merluza_austral$PRECIO_KG_MIN <= 4000)) {
+  print("Precio MERLUZA AUSTRAL Riesgoso")
+}
