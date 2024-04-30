@@ -24,4 +24,4 @@ jobs:
           
           
       - name: Run script
-        run: Rscript reporte01.Rmd
+        run: Rscript -e "rmarkdown::render('reporte01.Rmd')"
