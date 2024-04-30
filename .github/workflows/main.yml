@@ -1,0 +1,23 @@
+name: Run R Script
+
+on:
+  schedule:
+    - cron:  '0 7 * * *'  # Ejecuta todos los días a las 7 AM UTC
+
+jobs:
+  run-r-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      
+      - name: Setup R
+        uses: r-lib/actions/setup-r@v1
+      
+      - name: Install dependencies
+        run: |
+          install.packages("tidyverse")  # Asegúrate de incluir aquí todos los paquetes que necesites
+          install.packages("googlesheets4")
+          
+      - name: Run script
+        run: Rscript prueba01.R
