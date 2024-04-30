@@ -1,0 +1,60 @@
+---
+title: "Análisis de Datos"
+author: "Tu Nombre"
+date: "`r Sys.Date()`"  # Esto insertará la fecha actual
+output: html_document
+---
+
+# Introducción
+
+Probando el uso de datos en la nube y su publicacion automatica en base a R.
+Yanko Goicovic. Unidad de Inteligencia SERNAPESCA.
+
+## Cálculo de la Media
+
+Vamos a calcular la media de algunos datos.
+
+```{r}
+## Acceso a la DATA ####
+# Instalar y cargar el paquete googlesheets4
+if (!requireNamespace("googlesheets4", quietly = TRUE)) {
+  install.packages("googlesheets4")
+}
+library(googlesheets4)
+# Instalar y cargar el paquete dplyr
+if (!requireNamespace("dplyr", quietly = TRUE)) {
+  install.packages("dplyr")
+}
+library(dplyr)
+
+# Leer los datos de la hoja de cálculo
+sheet_url <- "https://docs.google.com/spreadsheets/d/1E_JWm4vF41BseLDe5-WI-yy7CptzhW5GuOUWxdliNmg/edit?usp=sharing"
+datos <- read_sheet(sheet_url)
+
+# Ver los datos
+print(datos)
+
+## Calculo simple ####
+# Calculando la media de una columna llamada 'PRECIO_KG'
+media_PRECIO_KG <- mean(datos$PRECIO_KG, na.rm = TRUE)
+print(media_PRECIO_KG)
+
+## Filtrar los datos por la última fecha ##
+# Identificar la última fecha
+ultima_fecha <- max(datos$FECHA)
+
+# Filtrar los datos para incluir solo la última fecha
+datos_ultima_fecha <- datos[datos$FECHA == ultima_fecha, ]
+
+# Imprimir la fecha
+print(paste("Fecha:", ultima_fecha))
+
+## Calcular los precios por especie para la última fecha ##
+precios_por_especie <- datos_ultima_fecha %>%
+  group_by(ESPECIE) %>%
+  summarize(PRECIO_KG = mean(PRECIO_KG, na.rm = TRUE),
+            PRECIO_CAJA = mean(PRECIO_CAJA, na.rm = TRUE),
+            PRECIO_MALLA = mean(PRECIO_MALLA, na.rm = TRUE))
+
+# Presentar los resultados en forma de tabla
+knitr::kable(precios_por_especie, caption = "Precios por especie para la última fecha")
