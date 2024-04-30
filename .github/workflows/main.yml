@@ -2,7 +2,7 @@ name: Run R Script and Generate Report
 
 on:
   schedule:
-    - cron: '/1 * * * *'  # Ejecuta el script al inicio de cada hora
+    - cron: '*/3 * * * *'  # Ejecuta el script cada 3 minutos
 
 jobs:
   run-r-script:
