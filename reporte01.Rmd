@@ -10,10 +10,6 @@ output: html_document
 Probando el uso de datos en la nube y su publicacion automatica en base a R.
 Yanko Goicovic. Unidad de Inteligencia SERNAPESCA.
 
-## Cálculo de la Media
-
-Vamos a calcular la media de algunos datos.
-
 ```{r}
 ## Acceso a la DATA ####
 # Instalar y cargar el paquete googlesheets4
@@ -33,11 +29,6 @@ datos <- read_sheet(sheet_url)
 
 # Ver los datos
 print(datos)
-
-## Calculo simple ####
-# Calculando la media de una columna llamada 'PRECIO_KG'
-media_PRECIO_KG <- mean(datos$PRECIO_KG, na.rm = TRUE)
-print(media_PRECIO_KG)
 
 ## Filtrar los datos por la última fecha ##
 # Identificar la última fecha
