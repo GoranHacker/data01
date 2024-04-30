@@ -2,7 +2,7 @@ name: Run R Script and Generate Report
 
 on:
   schedule:
-    - cron: '*/1 * * * *'  # Ejecuta el script al inicio de cada hora
+    - cron: '/1 * * * *'  # Ejecuta el script al inicio de cada hora
 
 jobs:
   run-r-script:
@@ -18,7 +18,7 @@ jobs:
       
       - name: Install R packages
         run: |
-          install.packages(c("tidyverse", "googlesheets4", "dplyr"), dependencies = TRUE)
+          Rscript -e "install.packages(c('tidyverse', 'googlesheets4', 'dplyr'), dependencies = TRUE)"
       
       - name: Run R script
         run: Rscript -e "rmarkdown::render('reporte01.Rmd')"
