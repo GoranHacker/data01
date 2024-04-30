@@ -3,25 +3,27 @@ name: Run R Script
 on:
   schedule:
     - cron: '*/1 * * * *'  
-
+    
 jobs:
   run-r-script:
-    runs-on: ubuntu-20.04  
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
       
       - name: Setup R
         uses: r-lib/actions/setup-r@v1
-        with:
-          r-version: '4.x'  
-          
+      
+      - name: Install Pandoc
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc
+      
       - name: Install dependencies
         run: |
-          R -e 'install.packages("tidyverse")'
-          R -e 'install.packages("googlesheets4")'
-          R -e 'install.packages("dplyr")'
-          
+          Rscript -e 'install.packages("tidyverse")'
+          Rscript -e 'install.packages("googlesheets4")'
+          Rscript -e 'install.packages("dplyr")'
+      
       - name: Run script
         run: Rscript -e "rmarkdown::render('reporte01.Rmd')"
-
