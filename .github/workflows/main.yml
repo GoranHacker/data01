@@ -27,3 +27,10 @@ jobs:
       
       - name: Run R script
         run: Rscript -e "rmarkdown::render('reporte01.Rmd')"
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./  # Asegúrate de que el directorio aquí coincida con donde tu archivo HTML es generado
+          keep_files: true  # Esto mantiene archivos existentes en la rama de GitHub Pages
