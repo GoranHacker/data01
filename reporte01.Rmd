@@ -13,6 +13,8 @@ Yanko Goicovic. Unidad de Inteligencia SERNAPESCA.
 ```{r}
 if (!require(httr)) install.packages("httr", dependencies = TRUE)
 if (!require(readxl)) install.packages("readxl", dependencies = TRUE)
+if (!require(dplyr)) install.packages("dplyr", dependencies = TRUE)
+library(dplyr)
 library(httr)
 library(readxl)
 
