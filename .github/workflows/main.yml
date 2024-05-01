@@ -2,7 +2,8 @@ name: Run R Script and Generate Report
 
 on:
   schedule:
-    - cron: '*/5 * * * *'  # Ejecuta el script cada 3 minutos para pruebas
+    - cron: '20 2,3 * * *'  # Ejecuta a las 02:30 y 03:30 UTC que corresponden a las 22:30 y 23:30 hora de Chile.
+
 
 jobs:
   run-r-script:
