@@ -1,11 +1,12 @@
 ---
-title: "Análisis de Datos"
+title: "Test de Precios"
 author: "Yanko Goicovic"
 date: "`r Sys.Date()`"
 output:
   html_document:
     self_contained: true
-    output_file: "index.html"  # Aquí especificas el nombre del archivo de salida
+    output_file: index.html
+  word_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -40,6 +41,7 @@ datos_ultima_fecha <- datos[datos$FECHA == ultima_fecha, ]
 
 
 
+
 ```{r results-table, results='asis', echo=FALSE}
 if(nrow(datos_ultima_fecha) > 0) {
   ## Calcular los precios por especie para la última fecha ##
@@ -67,7 +69,6 @@ if(nrow(datos_ultima_fecha) > 0) {
 
 
 ```{r alertas-multiples, echo=FALSE}
-library(dplyr)
 
 # Definir una lista de especies y condiciones de alerta con estructura adecuada
 especies_alertas <- list(
@@ -110,3 +111,69 @@ for (especie in names(especies_alertas)) {
     }
   }
 }
+
+
+
+## Tercer Producto Analisis del ultimo mes ####
+### Definir base de datos del ultimo mes ####
+# Asegurarse de que ultima_fecha es un objeto Date
+ultima_fecha <- as.Date(ultima_fecha)
+
+# Calcular la fecha de inicio para los últimos 30 días
+fecha_inicio <- as.Date(ultima_fecha - 30)
+
+# Asegurando que la columna FECHA es de tipo Date
+datos$FECHA <- as.Date(datos$FECHA)
+
+# Filtrar los datos para incluir solo las entradas de los últimos 30 días
+### Base de datos 30 dias
+datos_30_dias <- datos %>%
+  filter(FECHA >= fecha_inicio & FECHA <= ultima_fecha)
+
+# Orden especificado para las especies
+orden_especies <- c("MERLUZA COMUN", "MERLUZA AUSTRAL", "REINETA", "CONGRIO DORADO", "JUREL", "LOCOS", "CHORITO", "ALMEJA")
+
+
+
+```{r estadisticos-ordenadosx, echo=FALSE, results='asis'}
+library(dplyr)
+library(knitr)
+library(kableExtra)
+
+cat("## Precios Durante los Últimos 30 Días\n")
+
+# Procesar y mostrar los datos para cada especie
+for (especie in orden_especies) {
+  datos_especie <- datos_30_dias %>%
+    filter(ESPECIE == especie) %>%
+    summarise(
+      Media_KG = round(mean(PRECIO_KG, na.rm = TRUE), 0),
+      Minimo_KG = round(min(PRECIO_KG, na.rm = TRUE), 0),
+      Maximo_KG = round(max(PRECIO_KG, na.rm = TRUE), 0),
+      Media_CAJA = round(mean(PRECIO_CAJA, na.rm = TRUE), 0),
+      Minimo_CAJA = round(min(PRECIO_CAJA, na.rm = TRUE), 0),
+      Maximo_CAJA = round(max(PRECIO_CAJA, na.rm = TRUE), 0),
+      Media_MALLA = round(mean(PRECIO_MALLA, na.rm = TRUE), 0),
+      Minimo_MALLA = round(min(PRECIO_MALLA, na.rm = TRUE), 0),
+      Maximo_MALLA = round(max(PRECIO_MALLA, na.rm = TRUE), 0)
+    )
+
+  # Crear una tabla clara y legible
+  if(nrow(datos_especie) > 0) {
+    cat(paste("\n\n###", especie, "\n"))
+    datos_tabla <- rbind(
+      c("KG", datos_especie$Media_KG, datos_especie$Minimo_KG, datos_especie$Maximo_KG),
+      c("CAJA", datos_especie$Media_CAJA, datos_especie$Minimo_CAJA, datos_especie$Maximo_CAJA),
+      c("MALLA", datos_especie$Media_MALLA, datos_especie$Minimo_MALLA, datos_especie$Maximo_MALLA)
+    )
+    colnames(datos_tabla) <- c("Tipo", "Media", "Mínimo", "Máximo")
+    print(
+      knitr::kable(datos_tabla, "html") %>%
+      kable_styling("striped", full_width = F) %>%
+      column_spec(1, bold = TRUE, border_right = TRUE)
+    )
+  }
+}
+
+
+
