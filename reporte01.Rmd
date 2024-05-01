@@ -65,29 +65,48 @@ if(nrow(datos_ultima_fecha) > 0) {
 
 
 
-```{r alertas, echo=FALSE}
-# Filtrar datos para MERLUZA COMUN
-merluza_comun <- precios_por_especie %>%
-  filter(ESPECIE == "MERLUZA COMUN") %>%
-  summarize(
-    PRECIO_CAJA_MIN = min(PRECIO_CAJA, na.rm = TRUE),
-    PRECIO_KG_MIN = min(PRECIO_KG, na.rm = TRUE)
-  )
 
-# Verificar condiciones para MERLUZA COMUN
-if(nrow(merluza_comun) > 0 && (merluza_comun$PRECIO_CAJA_MIN <= 15000 || merluza_comun$PRECIO_KG_MIN <= 2000)) {
-  print("Precio MERLUZA COMUN Riesgoso")
-}
+```{r alertas-multiples, echo=FALSE}
+library(dplyr)
 
-# Filtrar datos para MERLUZA AUSTRAL
-merluza_austral <- precios_por_especie %>%
-  filter(ESPECIE == "MERLUZA AUSTRAL") %>%
-  summarize(
-    PRECIO_CAJA_MIN = min(PRECIO_CAJA, na.rm = TRUE),
-    PRECIO_KG_MIN = min(PRECIO_KG, na.rm = TRUE)
-  )
+# Definir una lista de especies y condiciones de alerta con estructura adecuada
+especies_alertas <- list(
+  "MERLUZA COMUN" = list(PRECIO_CAJA = 15000, PRECIO_KG = 2000),
+  "MERLUZA AUSTRAL" = list(PRECIO_CAJA = 25000, PRECIO_KG = 4000),
+  "CONGRIO DORADO" = list(PRECIO_KG = 4000),
+  "JUREL" = list(PRECIO_CAJA = 15000, PRECIO_KG = 2000),
+  "REINETA" = list(PRECIO_KG = 2500),
+  "ALMEJA" = list(PRECIO_MALLA = 30000),
+  "CHORITO" = list(PRECIO_MALLA = 10000),
+  "LOCOS" = list(PRECIO_KG = 10000)
+)
 
-# Verificar condiciones para MERLUZA AUSTRAL
-if(nrow(merluza_austral) > 0 && (merluza_austral$PRECIO_CAJA_MIN <= 25000 || merluza_austral$PRECIO_KG_MIN <= 4000)) {
-  print("Precio MERLUZA AUSTRAL Riesgoso")
+# Procesar alertas para cada especie
+for (especie in names(especies_alertas)) {
+  condiciones <- especies_alertas[[especie]]
+  datos_especie <- precios_por_especie %>%
+    filter(ESPECIE == especie) %>%
+    summarize(
+      PRECIO_CAJA_MIN = if ("PRECIO_CAJA" %in% names(condiciones)) min(PRECIO_CAJA, na.rm = TRUE) else NA,
+      PRECIO_KG_MIN = if ("PRECIO_KG" %in% names(condiciones)) min(PRECIO_KG, na.rm = TRUE) else NA,
+      PRECIO_MALLA_MIN = if ("PRECIO_MALLA" %in% names(condiciones)) min(PRECIO_MALLA, na.rm = TRUE) else NA
+    )
+
+  # Verificar condiciones para cada especie
+  alerta_activada <- FALSE
+  if (nrow(datos_especie) > 0) {
+    if (!is.na(datos_especie$PRECIO_CAJA_MIN) && datos_especie$PRECIO_CAJA_MIN <= condiciones$PRECIO_CAJA) {
+      alerta_activada <- TRUE
+    }
+    if (!is.na(datos_especie$PRECIO_KG_MIN) && datos_especie$PRECIO_KG_MIN <= condiciones$PRECIO_KG) {
+      alerta_activada <- TRUE
+    }
+    if (!is.na(datos_especie$PRECIO_MALLA_MIN) && datos_especie$PRECIO_MALLA_MIN <= condiciones$PRECIO_MALLA) {
+      alerta_activada <- TRUE
+    }
+
+    if (alerta_activada) {
+      print(paste("Precio", especie, "Riesgoso"))
+    }
+  }
 }
