@@ -2,7 +2,7 @@ name: Run R Script and Generate Report
 
 on:
   schedule:
-    - cron: '15 2,3,4,5,6,7,8 * * *'  # Ejecuta a las 02:50, 03:50 y 04:50 UTC que corresponden a las 22:50, 23:50 y 00:50 hora de Chile.
+    - cron: '0 * * * *'  # Ejecuta a las 02:15, 03:15, 04:15, 05:15, 06:15, 07:15, y 08:15 UTC que corresponden a las 22:15, 23:15, 00:15, 01:15, 02:15, 03:15, y 04:15 hora de Chile.
 
 jobs:
   run-r-script:
@@ -32,9 +32,12 @@ jobs:
       - name: List output files
         run: ls -l
 
+      - name: Rename report file
+        run: mv reporte01.html index.html
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
-            github_token: ${{ secrets.MY_GITHUB_PAT }}
-            publish_dir: ./  # Asegúrate de que el directorio aquí coincida con donde tu archivo HTML es generado
-            publish_branch: gh-pages  # ensure it's targeting the gh-pages branch
+          github_token: ${{ secrets.MY_GITHUB_PAT }}
+          publish_dir: ./  # Asegúrate de que el directorio aquí coincida con donde tu archivo HTML es generado
+          publish_branch: gh-pages  # ensure it's targeting the gh-pages branch
