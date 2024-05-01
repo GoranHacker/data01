@@ -32,9 +32,6 @@ jobs:
       - name: List output files
         run: ls -l
 
-      - name: Rename report file
-        run: mv reporte01.html index.html
-
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
