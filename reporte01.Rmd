@@ -1,12 +1,11 @@
 ---
 title: "Test de Precios"
-author: "Yanko Goicovic"
+author: "YGS UI SNP"
 date: "`r Sys.Date()`"
 output:
   html_document:
     self_contained: true
     output_file: index.html
-  word_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -17,6 +16,8 @@ library(dplyr)
 library(knitr)
 library(kableExtra)
 library(tidyr)
+library(ggplot2)
+
 
 # URL del archivo Excel publicado
 excel_url <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vSNvzxvxCHOZNa1FlmSHuhm5sqrNz5wOGCMtXYUqRGQ8uBJfaRSvyGFqm4bcihb8myUV7mOXlTtI7wh/pub?output=xlsx"
@@ -177,3 +178,59 @@ for (especie in orden_especies) {
 
 
 
+## Cuarto Producto Grafico de Precio Promedio de Merluza en el mes
+```{r precio-promedio-merluza, echo=FALSE, results='asis'}
+library(dplyr)
+library(knitr)
+library(kableExtra)
+
+cat("## Precio Promedio de Merluza Común\n")
+
+# Filtrar y agrupar los datos para Merluza Común
+merluza_comun_datos <- datos_30_dias %>%
+  filter(ESPECIE == "MERLUZA COMUN") %>%
+  group_by(FECHA) %>%
+  summarise(
+    PRECIO_KG = max(PRECIO_KG, na.rm = TRUE),  # Usar max para obtener un valor no-NA si está disponible
+    PRECIO_CAJA = max(PRECIO_CAJA, na.rm = TRUE),
+    Precio_Kilo_De_Caja = ifelse(!is.na(PRECIO_CAJA) && PRECIO_CAJA != 0, round(PRECIO_CAJA / 27, 0), NA),
+    # Asegurarse de excluir Inf y -Inf en el cálculo del promedio
+    Precio_Promedio = ifelse(!is.infinite(PRECIO_KG) && !is.infinite(Precio_Kilo_De_Caja),
+                             round(mean(c(PRECIO_KG, ifelse(!is.na(PRECIO_CAJA), PRECIO_CAJA / 27, NA)), na.rm = TRUE), 0),
+                             ifelse(!is.infinite(PRECIO_KG), PRECIO_KG,
+                                    ifelse(!is.infinite(Precio_Kilo_De_Caja), Precio_Kilo_De_Caja, NA))
+    )
+  ) %>%
+  ungroup()  # Eliminar la agrupación para operaciones futuras
+
+# Mostrar el resultado
+if(nrow(merluza_comun_datos) > 0) {
+  print(
+    merluza_comun_datos %>%
+      select(FECHA, PRECIO_KG, PRECIO_CAJA, Precio_Kilo_De_Caja, Precio_Promedio) %>%
+      kable("html", col.names = c("Fecha", "Precio por KG", "Precio por Caja", "Precio Kilo De Caja", "Precio Promedio")) %>%
+      kable_styling("striped", full_width = F) %>%
+      column_spec(1, bold = TRUE)
+  )
+} else {
+  cat("No hay datos suficientes para Merluza Común.\n")
+}
+
+
+```{r grafico-precio-promedio-merluza-mas-fechas, echo=FALSE, message=FALSE, warning=FALSE, fig.width=12, fig.height=5, results='asis'}
+library(ggplot2)
+
+# Asegurándonos de que las fechas estén en formato de fecha para que ggplot las maneje correctamente
+merluza_comun_datos$FECHA <- as.Date(merluza_comun_datos$FECHA)
+
+# Creando el gráfico para el Precio Promedio con detalles adicionales
+ggplot(data = merluza_comun_datos, aes(x = FECHA, y = Precio_Promedio)) +
+  geom_line(colour = "red", size = 1) +  # Línea roja
+  geom_point(colour = "black", size = 3, shape = 21, fill = "pink") +  # Puntos en los datos
+  geom_text(aes(label = Precio_Promedio), vjust = -0.5, colour = "black", size = 3) +  # Mostrar valores
+  labs(title = "Precio Promedio de Merluza Común últimos 30 días",
+       x = "Fecha",
+       y = "Precio Promedio") +
+  scale_x_date(date_breaks = "2 days", date_labels = "%d-%b") +  # Ajustando las etiquetas de fecha para mostrar más fechas
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotando las etiquetas de fecha para mejor visibilidad
