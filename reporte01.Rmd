@@ -19,6 +19,9 @@ output:
 <p>Este reporte es parte de una iniciativa en fase inicial y se espera que evolucione con el aporte de diversos actores de SERNAPESCA, refinando y validando continuamente los análisis presentados.</p>
 </div>
 
+<hr>
+
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
@@ -31,6 +34,7 @@ library(tidyr)
 library(ggplot2)
 
 
+orden_especies <- c("MERLUZA COMUN", "MERLUZA AUSTRAL", "REINETA", "CONGRIO DORADO", "JUREL", "LOCOS", "CHORITO", "ALMEJA")
 
 # PRECIOS
   # URL del archivo Excel de precios publicado
@@ -107,10 +111,11 @@ library(ggplot2)
     filter(FECHA >= fecha_inicio_zarpe & FECHA <= ultima_fecha_zarpe)
 
 
+```
 
-
-
-
+<div style="font-size:24px; font-weight:bold;">
+  Información de precios de recursos en el TPM
+</div>
 
 ```{r results-table, results='asis', echo=FALSE}
 if(nrow(datos_precios_ultima_fecha_precio) > 0) {
@@ -133,7 +138,6 @@ if(nrow(datos_precios_ultima_fecha_precio) > 0) {
 } else {
   print("No hay datos_precios disponibles para la última fecha.")
 }
-
 
 
 ```{r alertas-precios, echo=FALSE, results='asis'}
@@ -185,6 +189,20 @@ for (especie in names(especies_alertas)) {
 
 # Mostrar el total de especies en riesgo
 cat(paste("<div style='color: blue; font-weight: bold;'>Total de Especies en Riesgo:", Suma_Riesgo_Precio_Especie, "</div>\n"))
+
+
+cat('<hr>')
+
+
+```
+
+
+
+
+
+<div style="font-size:24px; font-weight:bold;">
+  Información de zarpes en las caletas del Maule
+</div>
 
 
 ```{r tabla-zarpe-ultimo-dia, results='asis', echo=FALSE}
@@ -249,7 +267,7 @@ for (caleta in names(caletas_alertas)) {
 # Mostrar el total de caletas en riesgo
 cat(paste("<div style='color: blue; font-weight: bold;'>Total de Caletas en Riesgo:", Suma_Riesgo_Zarpe_Caleta, "</div>\n"))
 
-
+cat('<hr>')
 
 ```{r verificar-fechas, echo=FALSE, results='asis'}
 # Obtener la fecha actual
@@ -316,23 +334,21 @@ cat(paste("<div style='font-size: 24px; font-weight: bold; color:",
 cat(paste("<div style='font-size: 18px;'>", explicacion, "</div>"))
 
 
+cat('<hr>')
+
+
+```
+
+<div style="font-size:24px; font-weight:bold;">
+  Valores estadisticos de los precios de los recursos en los últimos 30 días (TPM)
+</div>
 
 
 
-
-
-
-
-## Tercer Producto Analisis del ultimo mes ####
-# Orden especificado para las especies
-orden_especies <- c("MERLUZA COMUN", "MERLUZA AUSTRAL", "REINETA", "CONGRIO DORADO", "JUREL", "LOCOS", "CHORITO", "ALMEJA")
 
 ```{r estadisticos-ordenadosx, echo=FALSE, results='asis'}
-library(dplyr)
-library(knitr)
-library(kableExtra)
-
-cat("## Precios Durante los Últimos 30 Días\n")
+## Tercer Producto Analisis del ultimo mes ####
+# Orden especificado para las especies
 
 # Procesar y mostrar los datos_precios para cada especie
 for (especie in orden_especies) {
@@ -368,14 +384,21 @@ for (especie in orden_especies) {
 }
 
 
+```
 
-## Cuarto Producto Grafico de Precio Promedio de Merluza en el mes
+<div style="font-size:24px; font-weight:bold;">
+  Precio promedio merluza común en los ultimos 30 dias (TPM)
+</div>
+
+
+
+
+
 ```{r precio-promedio-merluza, echo=FALSE, results='asis'}
+## Cuarto Producto Grafico de Precio Promedio de Merluza en el mes
 library(dplyr)
 library(knitr)
 library(kableExtra)
-
-cat("## Precio Promedio de Merluza Común\n")
 
 # Filtrar y agrupar los datos_precios para Merluza Común
 merluza_comun_datos_precios <- datos_precios_30_dias %>%
@@ -407,6 +430,12 @@ if(nrow(merluza_comun_datos_precios) > 0) {
   cat("No hay datos_precios suficientes para Merluza Común.\n")
 }
 
+```
+
+<div style="font-size:24px; font-weight:bold;">
+  Gráfico Precio promedio merluza común en los ultimos 30 dias (TPM)
+</div>
+
 
 ```{r grafico-precio-promedio-merluza-mas-fechas, echo=FALSE, message=FALSE, warning=FALSE, fig.width=12, fig.height=5, results='asis'}
 library(ggplot2)
@@ -425,3 +454,5 @@ ggplot(data = merluza_comun_datos_precios, aes(x = FECHA, y = Precio_Promedio)) 
   scale_x_date(date_breaks = "2 days", date_labels = "%d-%b") +  # Ajustando las etiquetas de fecha para mostrar más fechas
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotando las etiquetas de fecha para mejor visibilidad
+
+
