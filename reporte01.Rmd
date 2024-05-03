@@ -298,7 +298,7 @@ explicacion <- switch(nivel_riesgo,
 cat(paste("<div style='font-size: 24px; font-weight: bold; color:", 
           ifelse(nivel_riesgo == "Bajo", "green", 
                  ifelse(nivel_riesgo == "Medio", "orange", "red")), ";'>",
-          "Riesgo del Día: ", nivel_riesgo, "</div>\n"))
+          "Riesgo del Día (Merluza Común): ", nivel_riesgo, "</div>\n"))
 cat(paste("<div style='font-size: 18px;'>", explicacion, "</div>"))
 
 
