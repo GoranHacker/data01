@@ -1,6 +1,6 @@
 ---
-title: "Test de Precios"
-author: "YGS UI SNP"
+title: "Informe diario de riesgo"
+author: "GEMM"
 date: "`r Sys.Date()`"
 output:
   html_document:
@@ -18,35 +18,90 @@ library(kableExtra)
 library(tidyr)
 library(ggplot2)
 
+# PRECIOS
+  # URL del archivo Excel de precios publicado
+  excel_PRECIOS_url <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vSNvzxvxCHOZNa1FlmSHuhm5sqrNz5wOGCMtXYUqRGQ8uBJfaRSvyGFqm4bcihb8myUV7mOXlTtI7wh/pub?output=xlsx"
 
-# URL del archivo Excel publicado
-excel_url <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vSNvzxvxCHOZNa1FlmSHuhm5sqrNz5wOGCMtXYUqRGQ8uBJfaRSvyGFqm4bcihb8myUV7mOXlTtI7wh/pub?output=xlsx"
+  # Descargar el archivo Excel a un archivo temporal
+  temp_file_PRECIOS <- tempfile(fileext = ".xlsx")
+  download.file(excel_PRECIOS_url, temp_file_PRECIOS, mode = "wb")
 
-# Descargar el archivo Excel a un archivo temporal
-temp_file <- tempfile(fileext = ".xlsx")
-download.file(excel_url, temp_file, mode = "wb")
+  # Leer el archivo Excel desde el archivo temporal
+  datos_precios <- read_excel(temp_file_PRECIOS)
 
-# Leer el archivo Excel desde el archivo temporal
-datos <- read_excel(temp_file)
+  # Opcionalmente, eliminar el archivo temporal si ya no se necesita
+  unlink(temp_file_PRECIOS)
 
-# Opcionalmente, eliminar el archivo temporal si ya no se necesita
-unlink(temp_file)
+  ## Filtrar los datos_precios por la última fecha ##
+  # Identificar la última fecha
+  ultima_fecha_precio <- max(datos_precios$FECHA)
 
-## Filtrar los datos por la última fecha ##
-# Identificar la última fecha
-ultima_fecha <- max(datos$FECHA)
+  # Filtrar los datos_precios para incluir solo la última fecha
+  datos_precios_ultima_fecha_precio <- datos_precios[datos_precios$FECHA == ultima_fecha_precio, ]
 
-# Filtrar los datos para incluir solo la última fecha
-datos_ultima_fecha <- datos[datos$FECHA == ultima_fecha, ]
+  ### Definir base de datos_precios del ultimo mes ####
+  # Asegurarse de que ultima_fecha_precio es un objeto Date
+  ultima_fecha_precio <- as.Date(ultima_fecha_precio)
+
+  # Calcular la fecha de inicio para los últimos 30 días
+  fecha_inicio <- as.Date(ultima_fecha_precio - 30)
+
+  # Asegurando que la columna FECHA es de tipo Date
+  datos_precios$FECHA <- as.Date(datos_precios$FECHA)
+
+  # Filtrar los datos_precios para incluir solo las entradas de los últimos 30 días
+  ### Base de datos_precios 30 dias
+  datos_precios_30_dias <- datos_precios %>%
+    filter(FECHA >= fecha_inicio & FECHA <= ultima_fecha_precio)
+
+
+
+#Zarpe
+  # URL del archivo Excel de zarpes publicado
+  excel_zARPE_url <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vQahlciP-WSB9_Jz4q9zlgIudVLthF4A90ZGF1b1YGRsLr6gulzweAQXgPhFotQ4WKT2C76Jy3zibe2/pub?output=xlsx" 
+
+  # Descargar el archivo Excel a un archivo temporal
+  temp_file_ZARPE <- tempfile(fileext = ".xlsx")
+  download.file(excel_zARPE_url, temp_file_ZARPE, mode = "wb")
+
+  # Leer el archivo Excel desde el archivo temporal
+  datos_zarpe <- read_excel(temp_file_ZARPE)
+
+  # Opcionalmente, eliminar el archivo temporal si ya no se necesita
+  unlink(temp_file_ZARPE)
+
+  ## Filtrar los datos_zarpe por la última fecha ##
+  # Identificar la última fecha
+  ultima_fecha_zarpe <- max(datos_zarpe$FECHA)
+
+  # Filtrar los datos_zarpe para incluir solo la última fecha
+  datos_zarpe_ultima_fecha <- datos_zarpe[datos_zarpe$FECHA == ultima_fecha_zarpe, ]
+
+  ### Definir base de datos de zarpe del último mes ###
+  # Asegurarse de que ultima_fecha_zarpe es un objeto Date
+  ultima_fecha_zarpe <- as.Date(ultima_fecha_zarpe)
+
+  # Calcular la fecha de inicio para los últimos 30 días
+  fecha_inicio_zarpe <- as.Date(ultima_fecha_zarpe - 30)
+
+  # Asegurando que la columna FECHA es de tipo Date en datos_zarpe
+  datos_zarpe$FECHA <- as.Date(datos_zarpe$FECHA)
+
+  # Filtrar los datos_zarpe para incluir solo las entradas de los últimos 30 días
+  ### Base de datos de zarpe de los últimos 30 días
+  datos_zarpe_30_dias <- datos_zarpe %>%
+    filter(FECHA >= fecha_inicio_zarpe & FECHA <= ultima_fecha_zarpe)
+
+
 
 
 
 
 
 ```{r results-table, results='asis', echo=FALSE}
-if(nrow(datos_ultima_fecha) > 0) {
+if(nrow(datos_precios_ultima_fecha_precio) > 0) {
   ## Calcular los precios por especie para la última fecha ##
-  precios_por_especie <- datos_ultima_fecha %>%
+  precios_por_especie <- datos_precios_ultima_fecha_precio %>%
     group_by(ESPECIE) %>%
     summarize(
       PRECIO_KG = mean(PRECIO_KG, na.rm = TRUE),
@@ -55,23 +110,20 @@ if(nrow(datos_ultima_fecha) > 0) {
     )
   
   # Formatear la última fecha para incluirla en el título de la tabla
-  fecha_formateada <- format(as.Date(ultima_fecha), "%d de %B de %Y")
+  fecha_formateada_precio <- format(as.Date(ultima_fecha_precio), "%d de %B de %Y")
   
   # Presentar los resultados en forma de tabla
   precios_por_especie %>%
-    kable("html", caption = paste("Precios por especie para el", fecha_formateada)) %>%
+    kable("html", caption = paste("Precios por especie para el", fecha_formateada_precio)) %>%
     kable_styling(bootstrap_options = c("striped", "hover", "condensed", "bordered"))
 } else {
-  print("No hay datos disponibles para la última fecha.")
+  print("No hay datos_precios disponibles para la última fecha.")
 }
 
 
 
-
-
-```{r alertas-multiples, echo=FALSE}
-
-# Definir una lista de especies y condiciones de alerta con estructura adecuada
+```{r alertas-precios, echo=FALSE, results='asis'}
+# Definir una lista de especies y condiciones de alerta
 especies_alertas <- list(
   "MERLUZA COMUN" = list(PRECIO_CAJA = 15000, PRECIO_KG = 2000),
   "MERLUZA AUSTRAL" = list(PRECIO_CAJA = 25000, PRECIO_KG = 4000),
@@ -83,10 +135,13 @@ especies_alertas <- list(
   "LOCOS" = list(PRECIO_KG = 10000)
 )
 
+# Inicializar el contador de riesgos
+Suma_Riesgo_Precio_Especie <- 0
+
 # Procesar alertas para cada especie
 for (especie in names(especies_alertas)) {
   condiciones <- especies_alertas[[especie]]
-  datos_especie <- precios_por_especie %>%
+  datos_precios_especie <- precios_por_especie %>%
     filter(ESPECIE == especie) %>%
     summarize(
       PRECIO_CAJA_MIN = if ("PRECIO_CAJA" %in% names(condiciones)) min(PRECIO_CAJA, na.rm = TRUE) else NA,
@@ -95,46 +150,168 @@ for (especie in names(especies_alertas)) {
     )
 
   # Verificar condiciones para cada especie
-  alerta_activada <- FALSE
-  if (nrow(datos_especie) > 0) {
-    if (!is.na(datos_especie$PRECIO_CAJA_MIN) && datos_especie$PRECIO_CAJA_MIN <= condiciones$PRECIO_CAJA) {
+  if (nrow(datos_precios_especie) > 0) {
+    alerta_activada <- FALSE
+    if (!is.na(datos_precios_especie$PRECIO_CAJA_MIN) && datos_precios_especie$PRECIO_CAJA_MIN <= condiciones$PRECIO_CAJA) {
       alerta_activada <- TRUE
     }
-    if (!is.na(datos_especie$PRECIO_KG_MIN) && datos_especie$PRECIO_KG_MIN <= condiciones$PRECIO_KG) {
+    if (!is.na(datos_precios_especie$PRECIO_KG_MIN) && datos_precios_especie$PRECIO_KG_MIN <= condiciones$PRECIO_KG) {
       alerta_activada <- TRUE
     }
-    if (!is.na(datos_especie$PRECIO_MALLA_MIN) && datos_especie$PRECIO_MALLA_MIN <= condiciones$PRECIO_MALLA) {
+    if (!is.na(datos_precios_especie$PRECIO_MALLA_MIN) && datos_precios_especie$PRECIO_MALLA_MIN <= condiciones$PRECIO_MALLA) {
       alerta_activada <- TRUE
     }
 
     if (alerta_activada) {
-      print(paste("Precio", especie, "Riesgoso"))
+      cat(paste("<div style='color: red; font-weight: bold;'>Precio Riesgoso para", especie, "- Valores críticos alcanzados.</div>\n"))
+      Suma_Riesgo_Precio_Especie <- Suma_Riesgo_Precio_Especie + 1
     }
   }
 }
 
+# Mostrar el total de especies en riesgo
+cat(paste("<div style='color: blue; font-weight: bold;'>Total de Especies en Riesgo:", Suma_Riesgo_Precio_Especie, "</div>\n"))
+
+
+```{r tabla-zarpe-ultimo-dia, results='asis', echo=FALSE}
+# Asegurando que los datos están en el formato adecuado
+datos_zarpe_ultima_fecha$FECHA <- as.Date(datos_zarpe_ultima_fecha$FECHA)
+
+# Obteniendo la última fecha formateada para el título
+fecha_formateada_zarpe <- if(nrow(datos_zarpe_ultima_fecha) > 0) {
+  format(max(datos_zarpe_ultima_fecha$FECHA), "%d de %B de %Y")
+} else {
+  "No disponible"
+}
+
+# Creando la tabla para mostrar en el informe HTML
+if(nrow(datos_zarpe_ultima_fecha) > 0) {
+  # Seleccionar las columnas específicas para la visualización
+  datos_mostrar <- datos_zarpe_ultima_fecha %>%
+    select(FECHA, CALETA, ZARPE, NUMERO_EMBARCACIONES, OBSERVACIONES)
+
+  # Formatear la fecha para la visualización dentro de la tabla
+  datos_mostrar$FECHA <- format(as.Date(datos_mostrar$FECHA), "%d de %B de %Y")
+
+  # Imprimir la tabla con knitr y kableExtra para un mejor formato
+  print(knitr::kable(datos_mostrar,
+                     format = "html",
+                     caption = paste("Actividades de Zarpe para la última fecha registrada:", fecha_formateada_zarpe),
+                     align = c('l', 'l', 'c', 'c', 'l')) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed", "bordered", "responsive")) %>%
+    column_spec(1, bold = TRUE) %>%
+    column_spec(2:5, border_left = TRUE, border_right = TRUE))
+} else {
+  print("No hay actividades de zarpe disponibles para la última fecha.")
+}
+
+
+```{r alertas-zarpe, echo=FALSE, results='asis'}
+# Definir condiciones de alerta para las caletas
+caletas_alertas <- list(
+  "MAGUELLINES" = 20,
+  "DUAO" = 30,
+  "CURANIPE" = 50
+)
+
+# Inicializar el contador de riesgos
+Suma_Riesgo_Zarpe_Caleta <- 0
+
+# Procesar alertas para cada caleta
+for (caleta in names(caletas_alertas)) {
+  umbral <- caletas_alertas[[caleta]]
+  datos_zarpe_caleta <- datos_zarpe_ultima_fecha %>%
+    filter(CALETA == caleta, ZARPE == "SI") %>%
+    summarize(NUMERO_EMBARCACIONES_MAX = max(NUMERO_EMBARCACIONES, na.rm = TRUE))
+
+  # Verificar condiciones para cada caleta
+  if (nrow(datos_zarpe_caleta) > 0 && !is.na(datos_zarpe_caleta$NUMERO_EMBARCACIONES_MAX) &&
+      datos_zarpe_caleta$NUMERO_EMBARCACIONES_MAX > umbral) {
+    cat(paste("<div style='color: red; font-weight: bold;'>Alerta de Riesgo en la Caleta", caleta, "- Número de embarcaciones excede el umbral con", datos_zarpe_caleta$NUMERO_EMBARCACIONES_MAX, "embarcaciones.</div>\n"))
+    Suma_Riesgo_Zarpe_Caleta <- Suma_Riesgo_Zarpe_Caleta + 1
+  }
+}
+
+# Mostrar el total de caletas en riesgo
+cat(paste("<div style='color: blue; font-weight: bold;'>Total de Caletas en Riesgo:", Suma_Riesgo_Zarpe_Caleta, "</div>\n"))
+
+
+
+```{r verificar-fechas, echo=FALSE, results='asis'}
+# Obtener la fecha actual
+fecha_actual <- Sys.Date()
+
+# Verificar si las fechas de los últimos datos coinciden con la fecha actual
+datos_actuales_precios <- max(datos_precios$FECHA) == fecha_actual
+datos_actuales_zarpe <- max(datos_zarpe$FECHA) == fecha_actual
+
+# Mostrar advertencias si los datos no están actualizados
+if (!datos_actuales_precios || !datos_actuales_zarpe) {
+  mensaje_advertencia <- paste("Advertencia: Los datos no están actualizados al día de hoy. ",
+                               ifelse(!datos_actuales_precios, "Los datos de precios son del ", ""),
+                               ifelse(!datos_actuales_precios, format(max(datos_precios$FECHA), "%d de %B de %Y"), ""),
+                               ifelse(!datos_actuales_precios && !datos_actuales_zarpe, " y ", ""),
+                               ifelse(!datos_actuales_zarpe, "los datos de zarpe son del ", ""),
+                               ifelse(!datos_actuales_zarpe, format(max(datos_zarpe$FECHA), "%d de %B de %Y"), ""),
+                               ". Por favor, verifica la relevancia de este análisis para decisiones críticas.")
+  cat("<div style='color: red; font-size: 18px;'>", mensaje_advertencia, "</div>")
+}
+
+
+
+
+
+```{r riesgo-del-dia-explicado, echo=FALSE, results='asis'}
+# Variables para el análisis
+riesgo_precio_merluza_comun <- FALSE
+riesgo_zarpe_cantidad <- Suma_Riesgo_Zarpe_Caleta
+
+# Evaluar riesgo de precio para Merluza Común
+if ("MERLUZA COMUN" %in% names(especies_alertas)) {
+  condiciones <- especies_alertas[["MERLUZA COMUN"]]
+  datos_precios_merluza_comun <- precios_por_especie %>%
+    filter(ESPECIE == "MERLUZA COMUN") %>%
+    summarize(
+      PRECIO_CAJA_MIN = if ("PRECIO_CAJA" %in% names(condiciones)) min(PRECIO_CAJA, na.rm = TRUE) else NA,
+      PRECIO_KG_MIN = if ("PRECIO_KG" %in% names(condiciones)) min(PRECIO_KG, na.rm = TRUE) else NA
+    )
+  if (nrow(datos_precios_merluza_comun) > 0 &&
+      ((!is.na(datos_precios_merluza_comun$PRECIO_CAJA_MIN) && datos_precios_merluza_comun$PRECIO_CAJA_MIN <= condiciones$PRECIO_CAJA) ||
+       (!is.na(datos_precios_merluza_comun$PRECIO_KG_MIN) && datos_precios_merluza_comun$PRECIO_KG_MIN <= condiciones$PRECIO_KG))) {
+    riesgo_precio_merluza_comun <- TRUE
+  }
+}
+
+# Determinar el nivel de riesgo general del día
+nivel_riesgo <- ifelse(!riesgo_precio_merluza_comun && riesgo_zarpe_cantidad == 1, "Bajo",
+                       ifelse(riesgo_precio_merluza_comun && riesgo_zarpe_cantidad == 1, "Medio",
+                              ifelse(riesgo_precio_merluza_comun && riesgo_zarpe_cantidad >= 2, "Alto", "Ninguno")))
+
+# Explicación detallada del riesgo
+explicacion <- switch(nivel_riesgo,
+                      "Bajo" = "El riesgo es bajo principalmente porque no hay alerta de precio para la Merluza Común y solo una caleta registra un número elevado de embarcaciones operando.",
+                      "Medio" = "El riesgo es medio debido a que el precio de la Merluza Común está en riesgo y al menos una caleta ha registrado un número elevado de zarpes.",
+                      "Alto" = "El riesgo es alto ya que el precio de la Merluza Común está en riesgo y dos o más caletas tienen un número elevado de zarpes.",
+                      "Ninguno" = "No se detectan condiciones de riesgo significativas para el día actual.")
+
+# Mostrar el resultado
+cat(paste("<div style='font-size: 24px; font-weight: bold; color:", 
+          ifelse(nivel_riesgo == "Bajo", "green", 
+                 ifelse(nivel_riesgo == "Medio", "orange", "red")), ";'>",
+          "Riesgo del Día: ", nivel_riesgo, "</div>\n"))
+cat(paste("<div style='font-size: 18px;'>", explicacion, "</div>"))
+
+
+
+
+
+
+
 
 
 ## Tercer Producto Analisis del ultimo mes ####
-### Definir base de datos del ultimo mes ####
-# Asegurarse de que ultima_fecha es un objeto Date
-ultima_fecha <- as.Date(ultima_fecha)
-
-# Calcular la fecha de inicio para los últimos 30 días
-fecha_inicio <- as.Date(ultima_fecha - 30)
-
-# Asegurando que la columna FECHA es de tipo Date
-datos$FECHA <- as.Date(datos$FECHA)
-
-# Filtrar los datos para incluir solo las entradas de los últimos 30 días
-### Base de datos 30 dias
-datos_30_dias <- datos %>%
-  filter(FECHA >= fecha_inicio & FECHA <= ultima_fecha)
-
 # Orden especificado para las especies
 orden_especies <- c("MERLUZA COMUN", "MERLUZA AUSTRAL", "REINETA", "CONGRIO DORADO", "JUREL", "LOCOS", "CHORITO", "ALMEJA")
-
-
 
 ```{r estadisticos-ordenadosx, echo=FALSE, results='asis'}
 library(dplyr)
@@ -143,9 +320,9 @@ library(kableExtra)
 
 cat("## Precios Durante los Últimos 30 Días\n")
 
-# Procesar y mostrar los datos para cada especie
+# Procesar y mostrar los datos_precios para cada especie
 for (especie in orden_especies) {
-  datos_especie <- datos_30_dias %>%
+  datos_precios_especie <- datos_precios_30_dias %>%
     filter(ESPECIE == especie) %>%
     summarise(
       Media_KG = round(mean(PRECIO_KG, na.rm = TRUE), 0),
@@ -160,16 +337,16 @@ for (especie in orden_especies) {
     )
 
   # Crear una tabla clara y legible
-  if(nrow(datos_especie) > 0) {
+  if(nrow(datos_precios_especie) > 0) {
     cat(paste("\n\n###", especie, "\n"))
-    datos_tabla <- rbind(
-      c("KG", datos_especie$Media_KG, datos_especie$Minimo_KG, datos_especie$Maximo_KG),
-      c("CAJA", datos_especie$Media_CAJA, datos_especie$Minimo_CAJA, datos_especie$Maximo_CAJA),
-      c("MALLA", datos_especie$Media_MALLA, datos_especie$Minimo_MALLA, datos_especie$Maximo_MALLA)
+    datos_precios_tabla <- rbind(
+      c("KG", datos_precios_especie$Media_KG, datos_precios_especie$Minimo_KG, datos_precios_especie$Maximo_KG),
+      c("CAJA", datos_precios_especie$Media_CAJA, datos_precios_especie$Minimo_CAJA, datos_precios_especie$Maximo_CAJA),
+      c("MALLA", datos_precios_especie$Media_MALLA, datos_precios_especie$Minimo_MALLA, datos_precios_especie$Maximo_MALLA)
     )
-    colnames(datos_tabla) <- c("Tipo", "Media", "Mínimo", "Máximo")
+    colnames(datos_precios_tabla) <- c("Tipo", "Media", "Mínimo", "Máximo")
     print(
-      knitr::kable(datos_tabla, "html") %>%
+      knitr::kable(datos_precios_tabla, "html") %>%
       kable_styling("striped", full_width = F) %>%
       column_spec(1, bold = TRUE, border_right = TRUE)
     )
@@ -186,8 +363,8 @@ library(kableExtra)
 
 cat("## Precio Promedio de Merluza Común\n")
 
-# Filtrar y agrupar los datos para Merluza Común
-merluza_comun_datos <- datos_30_dias %>%
+# Filtrar y agrupar los datos_precios para Merluza Común
+merluza_comun_datos_precios <- datos_precios_30_dias %>%
   filter(ESPECIE == "MERLUZA COMUN") %>%
   group_by(FECHA) %>%
   summarise(
@@ -204,16 +381,16 @@ merluza_comun_datos <- datos_30_dias %>%
   ungroup()  # Eliminar la agrupación para operaciones futuras
 
 # Mostrar el resultado
-if(nrow(merluza_comun_datos) > 0) {
+if(nrow(merluza_comun_datos_precios) > 0) {
   print(
-    merluza_comun_datos %>%
+    merluza_comun_datos_precios %>%
       select(FECHA, PRECIO_KG, PRECIO_CAJA, Precio_Kilo_De_Caja, Precio_Promedio) %>%
       kable("html", col.names = c("Fecha", "Precio por KG", "Precio por Caja", "Precio Kilo De Caja", "Precio Promedio")) %>%
       kable_styling("striped", full_width = F) %>%
       column_spec(1, bold = TRUE)
   )
 } else {
-  cat("No hay datos suficientes para Merluza Común.\n")
+  cat("No hay datos_precios suficientes para Merluza Común.\n")
 }
 
 
@@ -221,12 +398,12 @@ if(nrow(merluza_comun_datos) > 0) {
 library(ggplot2)
 
 # Asegurándonos de que las fechas estén en formato de fecha para que ggplot las maneje correctamente
-merluza_comun_datos$FECHA <- as.Date(merluza_comun_datos$FECHA)
+merluza_comun_datos_precios$FECHA <- as.Date(merluza_comun_datos_precios$FECHA)
 
 # Creando el gráfico para el Precio Promedio con detalles adicionales
-ggplot(data = merluza_comun_datos, aes(x = FECHA, y = Precio_Promedio)) +
+ggplot(data = merluza_comun_datos_precios, aes(x = FECHA, y = Precio_Promedio)) +
   geom_line(colour = "red", size = 1) +  # Línea roja
-  geom_point(colour = "black", size = 3, shape = 21, fill = "pink") +  # Puntos en los datos
+  geom_point(colour = "black", size = 3, shape = 21, fill = "pink") +  # Puntos en los datos_precios
   geom_text(aes(label = Precio_Promedio), vjust = -0.5, colour = "black", size = 3) +  # Mostrar valores
   labs(title = "Precio Promedio de Merluza Común últimos 30 días",
        x = "Fecha",
