@@ -32,6 +32,7 @@ library(knitr)
 library(kableExtra)
 library(tidyr)
 library(ggplot2)
+library(plotly)
 
 
 orden_especies <- c("MERLUZA COMUN", "MERLUZA AUSTRAL", "REINETA", "CONGRIO DORADO", "JUREL", "LOCOS", "CHORITO", "ALMEJA")
@@ -438,21 +439,25 @@ if(nrow(merluza_comun_datos_precios) > 0) {
 
 
 ```{r grafico-precio-promedio-merluza-mas-fechas, echo=FALSE, message=FALSE, warning=FALSE, fig.width=12, fig.height=5, results='asis'}
-library(ggplot2)
 
 # Asegurándonos de que las fechas estén en formato de fecha para que ggplot las maneje correctamente
 merluza_comun_datos_precios$FECHA <- as.Date(merluza_comun_datos_precios$FECHA)
 
-# Creando el gráfico para el Precio Promedio con detalles adicionales
-ggplot(data = merluza_comun_datos_precios, aes(x = FECHA, y = Precio_Promedio)) +
-  geom_line(colour = "red", size = 1) +  # Línea roja
-  geom_point(colour = "black", size = 3, shape = 21, fill = "pink") +  # Puntos en los datos_precios
-  geom_text(aes(label = Precio_Promedio), vjust = -0.5, colour = "black", size = 3) +  # Mostrar valores
+# Creando el gráfico con ggplot2
+p <- ggplot(data = merluza_comun_datos_precios, aes(x = FECHA, y = Precio_Promedio)) +
+  geom_line(colour = "red", size = 1) +
+  geom_point(colour = "black", size = 3, shape = 21, fill = "pink") +
+  geom_text(aes(label = Precio_Promedio), vjust = -0.5, colour = "black", size = 3) +
   labs(title = "Precio Promedio de Merluza Común últimos 30 días",
        x = "Fecha",
        y = "Precio Promedio") +
-  scale_x_date(date_breaks = "2 days", date_labels = "%d-%b") +  # Ajustando las etiquetas de fecha para mostrar más fechas
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotando las etiquetas de fecha para mejor visibilidad
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
+# Convirtiendo el gráfico ggplot a plotly para interactividad
+Grafico_Precio_Merluza_Comun_30dias <- ggplotly(p)
 
+# Imprimir el gráfico interactivo en el reporte
+Grafico_Precio_Merluza_Comun_30dias
+
+```
