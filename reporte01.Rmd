@@ -353,94 +353,13 @@ renderTable({
   datos_precios_30_dias %>%
     filter(ESPECIE == especie_seleccionada) %>%
     summarise(
-      Media_KG = round(mean(PRECIO_KG, na.rm = TRUE), 0),
-      Minimo_KG = round(min(PRECIO_KG, na.rm = TRUE), 0),
-      Maximo_KG = round(max(PRECIO_KG, na.rm = TRUE), 0),
-      Media_CAJA = round(mean(PRECIO_CAJA, na.rm = TRUE), 0),
-      Minimo_CAJA = round(min(PRECIO_CAJA, na.rm = TRUE), 0),
-      Maximo_CAJA = round(max(PRECIO_CAJA, na.rm = TRUE), 0)
+      Media_KG = as.integer(round(mean(PRECIO_KG, na.rm = TRUE), 0)),
+      Minimo_KG = as.integer(round(min(PRECIO_KG, na.rm = TRUE), 0)),
+      Maximo_KG = as.integer(round(max(PRECIO_KG, na.rm = TRUE), 0)),
+      Media_CAJA = as.integer(round(mean(PRECIO_CAJA, na.rm = TRUE), 0)),
+      Minimo_CAJA = as.integer(round(min(PRECIO_CAJA, na.rm = TRUE), 0)),
+      Maximo_CAJA = as.integer(round(max(PRECIO_CAJA, na.rm = TRUE), 0))
     )
 })
-```
-
-
-
-<div style="font-size:24px; font-weight:bold;">
-  Precio promedio merluza común en los ultimos 30 dias (TPM)
-</div>
-
-
-
-
-
-```{r precio-promedio-merluza, echo=FALSE, results='asis'}
-## Cuarto Producto Grafico de Precio Promedio de Merluza en el mes
-library(dplyr)
-library(knitr)
-library(kableExtra)
-
-# Filtrar y agrupar los datos_precios para Merluza Común
-merluza_comun_datos_precios <- datos_precios_30_dias %>%
-  filter(ESPECIE == "MERLUZA COMUN") %>%
-  group_by(FECHA) %>%
-  summarise(
-    PRECIO_KG = max(PRECIO_KG, na.rm = TRUE),  # Usar max para obtener un valor no-NA si está disponible
-    PRECIO_CAJA = max(PRECIO_CAJA, na.rm = TRUE),
-    Precio_Kilo_De_Caja = ifelse(!is.na(PRECIO_CAJA) && PRECIO_CAJA != 0, round(PRECIO_CAJA / 27, 0), NA),
-    # Asegurarse de excluir Inf y -Inf en el cálculo del promedio
-    Precio_Promedio = ifelse(!is.infinite(PRECIO_KG) && !is.infinite(Precio_Kilo_De_Caja),
-                             round(mean(c(PRECIO_KG, ifelse(!is.na(PRECIO_CAJA), PRECIO_CAJA / 27, NA)), na.rm = TRUE), 0),
-                             ifelse(!is.infinite(PRECIO_KG), PRECIO_KG,
-                                    ifelse(!is.infinite(Precio_Kilo_De_Caja), Precio_Kilo_De_Caja, NA))
-    )
-  ) %>%
-  ungroup()  # Eliminar la agrupación para operaciones futuras
-
-# Mostrar el resultado
-if(nrow(merluza_comun_datos_precios) > 0) {
-  print(
-    merluza_comun_datos_precios %>%
-      select(FECHA, PRECIO_KG, PRECIO_CAJA, Precio_Kilo_De_Caja, Precio_Promedio) %>%
-      kable("html", col.names = c("Fecha", "Precio por KG", "Precio por Caja", "Precio Kilo De Caja", "Precio Promedio")) %>%
-      kable_styling("striped", full_width = F) %>%
-      column_spec(1, bold = TRUE)
-  )
-} else {
-  cat("No hay datos_precios suficientes para Merluza Común.\n")
-}
 
 ```
-
-<div style="font-size:24px; font-weight:bold;">
-  Gráfico Precio promedio merluza común en los ultimos 30 dias (TPM)
-</div>
-
-
-```{r grafico-precio-promedio-merluza-mas-fechas, echo=FALSE, message=FALSE, warning=FALSE, fig.width=12, fig.height=5, results='asis'}
-
-# Asegurándonos de que las fechas estén en formato de fecha para que ggplot las maneje correctamente
-merluza_comun_datos_precios$FECHA <- as.Date(merluza_comun_datos_precios$FECHA)
-
-# Creando el gráfico con ggplot2
-p <- ggplot(data = merluza_comun_datos_precios, aes(x = FECHA, y = Precio_Promedio)) +
-  geom_line(colour = "red", size = 1) +
-  geom_point(colour = "black", size = 3, shape = 21, fill = "pink") +
-  geom_text(aes(label = Precio_Promedio), vjust = -0.5, colour = "black", size = 3) +
-  labs(title = "Precio Promedio de Merluza Común últimos 30 días",
-       x = "Fecha",
-       y = "Precio Promedio") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
-  scale_x_date(date_breaks = "1 day", date_labels = "%d-%b")  # Ajuste aquí para "1 day" o el intervalo que prefieras
-
-
-# Convirtiendo el gráfico ggplot a plotly para interactividad
-Grafico_Precio_Merluza_Comun_30dias <- ggplotly(p)
-
-# Imprimir el gráfico interactivo en el reporte
-Grafico_Precio_Merluza_Comun_30dias
-
-```
-
-
-
