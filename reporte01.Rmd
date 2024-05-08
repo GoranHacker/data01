@@ -6,6 +6,7 @@ output:
   html_document:
     self_contained: true
     output_file: index.html
+runtime: shiny
 ---
 
 <div style="font-family: Arial, sans-serif; font-size: 16px;">
@@ -198,9 +199,6 @@ cat('<hr>')
 ```
 
 
-
-
-
 <div style="font-size:24px; font-weight:bold;">
   Información de zarpes en las caletas del Maule
 </div>
@@ -345,47 +343,27 @@ cat('<hr>')
 </div>
 
 
-
-
-```{r estadisticos-ordenadosx, echo=FALSE, results='asis'}
-## Tercer Producto Analisis del ultimo mes ####
-# Orden especificado para las especies
-
-# Procesar y mostrar los datos_precios para cada especie
-for (especie in orden_especies) {
-  datos_precios_especie <- datos_precios_30_dias %>%
-    filter(ESPECIE == especie) %>%
+```{r echo=FALSE}
+library(shiny)
+selectInput("especie_seleccionada", "Elegir Especie:", choices = orden_especies)
+renderTable({
+  req(input$especie_seleccionada)  # Requerir selección para procesar el código
+  especie_seleccionada <- input$especie_seleccionada
+  
+  datos_precios_30_dias %>%
+    filter(ESPECIE == especie_seleccionada) %>%
     summarise(
       Media_KG = round(mean(PRECIO_KG, na.rm = TRUE), 0),
       Minimo_KG = round(min(PRECIO_KG, na.rm = TRUE), 0),
       Maximo_KG = round(max(PRECIO_KG, na.rm = TRUE), 0),
       Media_CAJA = round(mean(PRECIO_CAJA, na.rm = TRUE), 0),
       Minimo_CAJA = round(min(PRECIO_CAJA, na.rm = TRUE), 0),
-      Maximo_CAJA = round(max(PRECIO_CAJA, na.rm = TRUE), 0),
-      Media_MALLA = round(mean(PRECIO_MALLA, na.rm = TRUE), 0),
-      Minimo_MALLA = round(min(PRECIO_MALLA, na.rm = TRUE), 0),
-      Maximo_MALLA = round(max(PRECIO_MALLA, na.rm = TRUE), 0)
+      Maximo_CAJA = round(max(PRECIO_CAJA, na.rm = TRUE), 0)
     )
-
-  # Crear una tabla clara y legible
-  if(nrow(datos_precios_especie) > 0) {
-    cat(paste("\n\n###", especie, "\n"))
-    datos_precios_tabla <- rbind(
-      c("KG", datos_precios_especie$Media_KG, datos_precios_especie$Minimo_KG, datos_precios_especie$Maximo_KG),
-      c("CAJA", datos_precios_especie$Media_CAJA, datos_precios_especie$Minimo_CAJA, datos_precios_especie$Maximo_CAJA),
-      c("MALLA", datos_precios_especie$Media_MALLA, datos_precios_especie$Minimo_MALLA, datos_precios_especie$Maximo_MALLA)
-    )
-    colnames(datos_precios_tabla) <- c("Tipo", "Media", "Mínimo", "Máximo")
-    print(
-      knitr::kable(datos_precios_tabla, "html") %>%
-      kable_styling("striped", full_width = F) %>%
-      column_spec(1, bold = TRUE, border_right = TRUE)
-    )
-  }
-}
-
-
+})
 ```
+
+
 
 <div style="font-size:24px; font-weight:bold;">
   Precio promedio merluza común en los ultimos 30 dias (TPM)
@@ -452,7 +430,9 @@ p <- ggplot(data = merluza_comun_datos_precios, aes(x = FECHA, y = Precio_Promed
        x = "Fecha",
        y = "Precio Promedio") +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_x_date(date_breaks = "1 day", date_labels = "%d-%b")  # Ajuste aquí para "1 day" o el intervalo que prefieras
+
 
 # Convirtiendo el gráfico ggplot a plotly para interactividad
 Grafico_Precio_Merluza_Comun_30dias <- ggplotly(p)
@@ -461,3 +441,6 @@ Grafico_Precio_Merluza_Comun_30dias <- ggplotly(p)
 Grafico_Precio_Merluza_Comun_30dias
 
 ```
+
+
+
