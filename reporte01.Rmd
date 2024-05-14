@@ -139,21 +139,28 @@ datos_clima <- read_csv(temp_file_clima)
 
 ```{r Tabla clima, results='asis', echo=FALSE, message=FALSE, warning=FALSE}
 
-# Suponiendo que la columna se llama 'Place' y estos son los lugares de interés
+# Estos son los lugares de interés
 lugares_interes <- c("CONSTITUCION", "ILOCA", "LICANTEN", "PELLUHUE")
 
-# Filtrar por lugares de interés
-datos_filtrados <- datos_clima %>%
-  filter(X...Place %in% lugares_interes)
-
-# Fecha actual
+# Define la fecha actual antes de cualquier operación que la utilice
 fecha_actual <- Sys.Date()
 
-# Filtrar por lugares de interés y fecha actual, y seleccionar columnas específicas
+# Filtrar por lugares de interés y por la fecha actual
 datos_filtrados <- datos_clima %>%
   filter(X...Place %in% lugares_interes, as.Date(date) == fecha_actual) %>%
   select(X...Place, date, windspeed_kph, swell_period_secs, wind_direction, wave_height_m) %>%
   mutate(
+    Direccion_Viento = case_when(
+      wind_direction < 22.5 | wind_direction >= 337.5 ~ "Norte",
+      wind_direction >= 22.5 & wind_direction < 67.5 ~ "Noreste",
+      wind_direction >= 67.5 & wind_direction < 112.5 ~ "Este",
+      wind_direction >= 112.5 & wind_direction < 157.5 ~ "Sureste",
+      wind_direction >= 157.5 & wind_direction < 202.5 ~ "Sur",
+      wind_direction >= 202.5 & wind_direction < 247.5 ~ "Suroeste",
+      wind_direction >= 247.5 & wind_direction < 292.5 ~ "Oeste",
+      wind_direction >= 292.5 & wind_direction < 337.5 ~ "Noroeste",
+      TRUE ~ "Desconocido"
+    ),
     windspeed_kph = cell_spec(windspeed_kph, "html", color = ifelse(windspeed_kph > 30, "red", "black")),
     swell_period_secs = cell_spec(swell_period_secs, "html", color = ifelse(swell_period_secs > 20, "red", "black")),
     wave_height_m = cell_spec(wave_height_m, "html", color = ifelse(wave_height_m > 4, "red", "black"))
@@ -223,7 +230,7 @@ Riesgo_Precio_Merluza <- 0
 
 # Verificar condición de riesgo para Merluza Común
 if (nrow(datos_merluza_comun) > 0 && datos_merluza_comun$PRECIO_CAJA_MIN <= precio_umbral_merluza_comun) {
-  cat(paste("<div style='color: red; font-weight: bold;'>Precio Riesgoso para MERLUZA COMUN - Valor crítico de PRECIO_CAJA alcanzado: $", datos_merluza_comun$PRECIO_CAJA_MIN, "</div>\n"))
+  cat(paste("<div style='color: red; font-weight: bold;'>Precio Riesgoso para MERLUZA COMUN - Precio bajo de PRECIO_CAJA alcanzado: $", datos_merluza_comun$PRECIO_CAJA_MIN, "</div>\n"))
   Riesgo_Precio_Merluza <- 1  # Establecer riesgo como verdadero
 } else {
   cat(paste("<div style='color: green; font-weight: bold;'>No hay riesgo en el precio de la caja para MERLUZA COMUN - Valor actual: $", datos_merluza_comun$PRECIO_CAJA_MIN, "</div>\n"))
@@ -407,5 +414,6 @@ Grafico_Precio_Merluza_Comun_30dias <- ggplotly(p)
 Grafico_Precio_Merluza_Comun_30dias
 
 ```
+
 
 
