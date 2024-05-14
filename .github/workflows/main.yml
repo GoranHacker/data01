@@ -23,7 +23,7 @@ jobs:
       
       - name: Install R packages
         run: |
-          Rscript -e "install.packages(c('rmarkdown', 'tidyverse', 'httr', 'dplyr', 'readxl', 'knitr', 'kableExtra', 'tidyr', 'ggplot2', 'plotly', 'shiny'), dependencies = TRUE)"
+          Rscript -e "install.packages(c('rmarkdown', 'tidyverse', 'httr', 'dplyr', 'readxl', 'knitr', 'kableExtra', 'tidyr', 'ggplot2', 'plotly', 'readr'), dependencies = TRUE)"
       
       - name: Run R script and Render HTML
         run: |
