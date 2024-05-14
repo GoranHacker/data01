@@ -200,7 +200,7 @@ if(nrow(datos_precios_ultima_fecha_precio) > 0) {
     kable("html", caption = paste("Precios por especie para el", fecha_formateada_precio)) %>%
     kable_styling(bootstrap_options = c("striped", "hover", "condensed", "bordered"))
 } else {
-  print("No hay datos_precios disponibles para la Ãºltima fecha.")
+  print("No hay datos_precios disponibles para la ültima fecha.")
 }
 
 ```
@@ -248,7 +248,7 @@ for (especie in names(especies_alertas)) {
     }
 
     if (alerta_activada) {
-      cat(paste("<div style='color: red; font-weight: bold;'>Precio Riesgoso para", especie, "- Valores crÃ­ticos alcanzados.</div>\n"))
+      cat(paste("<div style='color: red; font-weight: bold;'>Precio Riesgoso para", especie, "- Valores críticos alcanzados.</div>\n"))
       Suma_Riesgo_Precio_Especie <- Suma_Riesgo_Precio_Especie + 1
     }
   }
@@ -265,7 +265,7 @@ cat('<hr>')
 
 
 <div style="font-size:24px; font-weight:bold;">
-  InformaciÃ³n de zarpes en las caletas del Maule
+  Información de zarpes en las caletas del Maule
 </div>
 
 
@@ -292,13 +292,13 @@ if(nrow(datos_zarpe_ultima_fecha) > 0) {
   # Imprimir la tabla con knitr y kableExtra para un mejor formato
   print(knitr::kable(datos_mostrar,
                      format = "html",
-                     caption = paste("Actividades de Zarpe para la Ãºltima fecha registrada:", fecha_formateada_zarpe),
+                     caption = paste("Actividades de Zarpe para la última fecha registrada:", fecha_formateada_zarpe),
                      align = c('l', 'l', 'c', 'c', 'l')) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed", "bordered", "responsive")) %>%
     column_spec(1, bold = TRUE) %>%
     column_spec(2:5, border_left = TRUE, border_right = TRUE))
 } else {
-  print("No hay actividades de zarpe disponibles para la Ãºltima fecha.")
+  print("No hay actividades de zarpe disponibles para la última fecha.")
 }
 ```
 
@@ -323,7 +323,7 @@ for (caleta in names(caletas_alertas)) {
   # Verificar condiciones para cada caleta
   if (nrow(datos_zarpe_caleta) > 0 && !is.na(datos_zarpe_caleta$NUMERO_EMBARCACIONES_MAX) &&
       datos_zarpe_caleta$NUMERO_EMBARCACIONES_MAX > umbral) {
-    cat(paste("<div style='color: red; font-weight: bold;'>Alerta de Riesgo en la Caleta", caleta, "- NÃºmero de embarcaciones excede el umbral con", datos_zarpe_caleta$NUMERO_EMBARCACIONES_MAX, "embarcaciones.</div>\n"))
+    cat(paste("<div style='color: red; font-weight: bold;'>Alerta de Riesgo en la Caleta", caleta, "- Número de embarcaciones excede el umbral con", datos_zarpe_caleta$NUMERO_EMBARCACIONES_MAX, "embarcaciones.</div>\n"))
     Suma_Riesgo_Zarpe_Caleta <- Suma_Riesgo_Zarpe_Caleta + 1
   }
 }
@@ -344,13 +344,13 @@ datos_actuales_zarpe <- max(datos_zarpe$FECHA) == fecha_actual
 
 # Mostrar advertencias si los datos no estÃ¡n actualizados
 if (!datos_actuales_precios || !datos_actuales_zarpe) {
-  mensaje_advertencia <- paste("Advertencia: Los datos no estÃ¡n actualizados al dÃ­a de hoy. ",
+  mensaje_advertencia <- paste("Advertencia: Los datos no están actualizados al día de hoy. ",
                                ifelse(!datos_actuales_precios, "Los datos de precios son del ", ""),
                                ifelse(!datos_actuales_precios, format(max(datos_precios$FECHA), "%d de %B de %Y"), ""),
                                ifelse(!datos_actuales_precios && !datos_actuales_zarpe, " y ", ""),
                                ifelse(!datos_actuales_zarpe, "los datos de zarpe son del ", ""),
                                ifelse(!datos_actuales_zarpe, format(max(datos_zarpe$FECHA), "%d de %B de %Y"), ""),
-                               ". Por favor, verifica la relevancia de este anÃ¡lisis para decisiones crÃ­ticas.")
+                               ". Por favor, verifica la relevancia de este análisis para decisiones críticas.")
   cat("<div style='color: red; font-size: 18px;'>", mensaje_advertencia, "</div>")
 }
 
@@ -386,16 +386,16 @@ nivel_riesgo <- ifelse(!riesgo_precio_merluza_comun && riesgo_zarpe_cantidad == 
 
 # ExplicaciÃ³n detallada del riesgo
 explicacion <- switch(nivel_riesgo,
-                      "Bajo" = "El riesgo es bajo principalmente porque no hay alerta de precio para la Merluza ComÃºn y solo una caleta registra un nÃºmero elevado de embarcaciones operando.",
-                      "Medio" = "El riesgo es medio debido a que el precio de la Merluza ComÃºn estÃ¡ en riesgo y al menos una caleta ha registrado un nÃºmero elevado de zarpes.",
-                      "Alto" = "El riesgo es alto ya que el precio de la Merluza ComÃºn estÃ¡ en riesgo y dos o mÃ¡s caletas tienen un nÃºmero elevado de zarpes.",
-                      "Ninguno" = "No se detectan condiciones de riesgo significativas para el dÃ­a actual.")
+                      "Bajo" = "El riesgo es bajo principalmente porque no hay alerta de precio para la Merluza Común y solo una caleta registra un número elevado de embarcaciones operando.",
+                      "Medio" = "El riesgo es medio debido a que el precio de la Merluza Común está en riesgo y al menos una caleta ha registrado un número elevado de zarpes.",
+                      "Alto" = "El riesgo es alto ya que el precio de la Merluza Común está en riesgo y dos o más caletas tienen un número elevado de zarpes.",
+                      "Ninguno" = "No se detectan condiciones de riesgo significativas para el día actual.")
 
 # Mostrar el resultado
 cat(paste("<div style='font-size: 24px; font-weight: bold; color:", 
           ifelse(nivel_riesgo == "Bajo", "green", 
                  ifelse(nivel_riesgo == "Medio", "orange", "red")), ";'>",
-          "Riesgo del DÃ­a (Merluza ComÃºn): ", nivel_riesgo, "</div>\n"))
+          "Riesgo del Día (Merluza Común): ", nivel_riesgo, "</div>\n"))
 cat(paste("<div style='font-size: 18px;'>", explicacion, "</div>"))
 
 
@@ -434,7 +434,7 @@ merluza_comun_datos_precios <- datos_precios_30_dias %>%
 ```
 
 <div style="font-size:24px; font-weight:bold;">
-  GrÃ¡fico Precio promedio merluza comÃºn en los ultimos 30 dias (TPM)
+  Gráfico Precio promedio merluza común en los ultimos 30 días (TPM)
 </div>
 
 
@@ -448,7 +448,7 @@ p <- ggplot(data = merluza_comun_datos_precios, aes(x = FECHA, y = Precio_Promed
   geom_line(colour = "red", size = 1) +
   geom_point(colour = "black", size = 3, shape = 21, fill = "pink") +
   geom_text(aes(label = Precio_Promedio), vjust = -0.5, colour = "black", size = 3) +
-  labs(title = "Precio Promedio de Merluza ComÃºn Ãºltimos 30 dÃ­as",
+  labs(title = "Precio Promedio de Merluza Común últimos 30 días",
        x = "Fecha",
        y = "Precio Promedio") +
   theme_minimal() +
