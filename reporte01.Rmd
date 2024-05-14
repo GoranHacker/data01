@@ -54,6 +54,10 @@ orden_especies <- c("MERLUZA COMUN", "MERLUZA AUSTRAL", "REINETA", "CONGRIO DORA
 
   # Leer el archivo Excel desde el archivo temporal
   datos_precios <- read_excel(temp_file_PRECIOS)
+  
+  # Filtrar inmediatamente para incluir solo datos de 'MERLUZA COMUN'
+datos_precios <- datos_precios %>%
+  filter(ESPECIE == "MERLUZA COMUN")
 
   # Opcionalmente, eliminar el archivo temporal si ya no se necesita
   unlink(temp_file_PRECIOS)
@@ -185,10 +189,8 @@ if(nrow(datos_precios_ultima_fecha_precio) > 0) {
   precios_por_especie <- datos_precios_ultima_fecha_precio %>%
     group_by(ESPECIE) %>%
     summarize(
-      PRECIO_KG = mean(PRECIO_KG, na.rm = TRUE),
       PRECIO_CAJA = mean(PRECIO_CAJA, na.rm = TRUE),
-      PRECIO_MALLA = mean(PRECIO_MALLA, na.rm = TRUE),
-      .groups = 'drop'  # Agrega esta lÃ­nea para evitar problemas al imprimir la tabla
+      .groups = 'drop'  # Agrega esta línea para evitar problemas al imprimir la tabla
     )
   
   # Formatear la Ãºltima fecha para incluirla en el tÃ­tulo de la tabla
@@ -207,58 +209,26 @@ if(nrow(datos_precios_ultima_fecha_precio) > 0) {
 
 
 
-```{r alertas-precios, echo=FALSE, results='asis'}
-# Definir una lista de especies y condiciones de alerta
-especies_alertas <- list(
-  "MERLUZA COMUN" = list(PRECIO_CAJA = 15000, PRECIO_KG = 2000),
-  "MERLUZA AUSTRAL" = list(PRECIO_CAJA = 25000, PRECIO_KG = 4000),
-  "CONGRIO DORADO" = list(PRECIO_KG = 4000),
-  "JUREL" = list(PRECIO_CAJA = 15000, PRECIO_KG = 2000),
-  "REINETA" = list(PRECIO_KG = 2500),
-  "ALMEJA" = list(PRECIO_MALLA = 30000),
-  "CHORITO" = list(PRECIO_MALLA = 10000),
-  "LOCOS" = list(PRECIO_KG = 10000)
-)
+```{r alertas-precios-merluza-comun, echo=FALSE, results='asis'}
+# Condición de alerta específica para Merluza Común
+precio_umbral_merluza_comun <- 30000
 
-# Inicializar el contador de riesgos
-Suma_Riesgo_Precio_Especie <- 0
+# Filtrar los datos solo para Merluza Común
+datos_merluza_comun <- precios_por_especie %>%
+  filter(ESPECIE == "MERLUZA COMUN") %>%
+  summarize(PRECIO_CAJA_MIN = min(PRECIO_CAJA, na.rm = TRUE))
 
-# Procesar alertas para cada especie
-for (especie in names(especies_alertas)) {
-  condiciones <- especies_alertas[[especie]]
-  datos_precios_especie <- precios_por_especie %>%
-    filter(ESPECIE == especie) %>%
-    summarize(
-      PRECIO_CAJA_MIN = if ("PRECIO_CAJA" %in% names(condiciones)) min(PRECIO_CAJA, na.rm = TRUE) else NA,
-      PRECIO_KG_MIN = if ("PRECIO_KG" %in% names(condiciones)) min(PRECIO_KG, na.rm = TRUE) else NA,
-      PRECIO_MALLA_MIN = if ("PRECIO_MALLA" %in% names(condiciones)) min(PRECIO_MALLA, na.rm = TRUE) else NA
-    )
+# Inicializar la variable de riesgo
+Riesgo_Precio_Merluza <- 0
 
-  # Verificar condiciones para cada especie
-  if (nrow(datos_precios_especie) > 0) {
-    alerta_activada <- FALSE
-    if (!is.na(datos_precios_especie$PRECIO_CAJA_MIN) && datos_precios_especie$PRECIO_CAJA_MIN <= condiciones$PRECIO_CAJA) {
-      alerta_activada <- TRUE
-    }
-    if (!is.na(datos_precios_especie$PRECIO_KG_MIN) && datos_precios_especie$PRECIO_KG_MIN <= condiciones$PRECIO_KG) {
-      alerta_activada <- TRUE
-    }
-    if (!is.na(datos_precios_especie$PRECIO_MALLA_MIN) && datos_precios_especie$PRECIO_MALLA_MIN <= condiciones$PRECIO_MALLA) {
-      alerta_activada <- TRUE
-    }
-
-    if (alerta_activada) {
-      cat(paste("<div style='color: red; font-weight: bold;'>Precio Riesgoso para", especie, "- Valores críticos alcanzados.</div>\n"))
-      Suma_Riesgo_Precio_Especie <- Suma_Riesgo_Precio_Especie + 1
-    }
-  }
+# Verificar condición de riesgo para Merluza Común
+if (nrow(datos_merluza_comun) > 0 && datos_merluza_comun$PRECIO_CAJA_MIN <= precio_umbral_merluza_comun) {
+  cat(paste("<div style='color: red; font-weight: bold;'>Precio Riesgoso para MERLUZA COMUN - Valor crítico de PRECIO_CAJA alcanzado: $", datos_merluza_comun$PRECIO_CAJA_MIN, "</div>\n"))
+  Riesgo_Precio_Merluza <- 1  # Establecer riesgo como verdadero
+} else {
+  cat(paste("<div style='color: green; font-weight: bold;'>No hay riesgo en el precio de la caja para MERLUZA COMUN - Valor actual: $", datos_merluza_comun$PRECIO_CAJA_MIN, "</div>\n"))
+  Riesgo_Precio_Merluza <- 0  # Establecer riesgo como falso
 }
-
-# Mostrar el total de especies en riesgo
-cat(paste("<div style='color: blue; font-weight: bold;'>Total de Especies en Riesgo:", Suma_Riesgo_Precio_Especie, "</div>\n"))
-
-
-cat('<hr>')
 
 
 ```
@@ -292,7 +262,7 @@ if(nrow(datos_zarpe_ultima_fecha) > 0) {
   # Imprimir la tabla con knitr y kableExtra para un mejor formato
   print(knitr::kable(datos_mostrar,
                      format = "html",
-                     caption = paste("Actividades de Zarpe para la última fecha registrada:", fecha_formateada_zarpe),
+                     caption = paste("Actividades de Zarpe para la ltima fecha registrada:", fecha_formateada_zarpe),
                      align = c('l', 'l', 'c', 'c', 'l')) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed", "bordered", "responsive")) %>%
     column_spec(1, bold = TRUE) %>%
@@ -306,8 +276,8 @@ if(nrow(datos_zarpe_ultima_fecha) > 0) {
 # Definir condiciones de alerta para las caletas
 caletas_alertas <- list(
   "MAGUELLINES" = 20,
-  "DUAO" = 30,
-  "CURANIPE" = 50
+  "DUAO" = 20,
+  "CURANIPE" = 30
 )
 
 # Inicializar el contador de riesgos
@@ -331,14 +301,14 @@ for (caleta in names(caletas_alertas)) {
 # Mostrar el total de caletas en riesgo
 cat(paste("<div style='color: blue; font-weight: bold;'>Total de Caletas en Riesgo:", Suma_Riesgo_Zarpe_Caleta, "</div>\n"))
 
-cat('<hr>')
+
 ```
 
 ```{r verificar-fechas, echo=FALSE, results='asis'}
 # Obtener la fecha actual
 fecha_actual <- Sys.Date()
 
-# Verificar si las fechas de los Ãºltimos datos coinciden con la fecha actual
+# Verificar si las fechas de los ulltimos datos coinciden con la fecha actual
 datos_actuales_precios <- max(datos_precios$FECHA) == fecha_actual
 datos_actuales_zarpe <- max(datos_zarpe$FECHA) == fecha_actual
 
@@ -358,78 +328,52 @@ if (!datos_actuales_precios || !datos_actuales_zarpe) {
 
 
 
-```{r riesgo-del-dia-explicado, echo=FALSE, results='asis'}
-# Variables para el anÃ¡lisis
-riesgo_precio_merluza_comun <- FALSE
-riesgo_zarpe_cantidad <- Suma_Riesgo_Zarpe_Caleta
+```{r riesgo-del-dia-merluza-comun, echo=FALSE, results='asis'}
+# Evaluación combinada de riesgo de precio y zarpe
 
-# Evaluar riesgo de precio para Merluza ComÃºn
-if ("MERLUZA COMUN" %in% names(especies_alertas)) {
-  condiciones <- especies_alertas[["MERLUZA COMUN"]]
-  datos_precios_merluza_comun <- precios_por_especie %>%
-    filter(ESPECIE == "MERLUZA COMUN") %>%
-    summarize(
-      PRECIO_CAJA_MIN = if ("PRECIO_CAJA" %in% names(condiciones)) min(PRECIO_CAJA, na.rm = TRUE) else NA,
-      PRECIO_KG_MIN = if ("PRECIO_KG" %in% names(condiciones)) min(PRECIO_KG, na.rm = TRUE) else NA
-    )
-  if (nrow(datos_precios_merluza_comun) > 0 &&
-      ((!is.na(datos_precios_merluza_comun$PRECIO_CAJA_MIN) && datos_precios_merluza_comun$PRECIO_CAJA_MIN <= condiciones$PRECIO_CAJA) ||
-       (!is.na(datos_precios_merluza_comun$PRECIO_KG_MIN) && datos_precios_merluza_comun$PRECIO_KG_MIN <= condiciones$PRECIO_KG))) {
-    riesgo_precio_merluza_comun <- TRUE
-  }
+# Inicializar variables para alertas
+Riesgo_Precio <- ifelse(Riesgo_Precio_Merluza, 1, 0)  # 1 si hay riesgo de precio, 0 si no
+Riesgo_Zarpe <- Suma_Riesgo_Zarpe_Caleta  # Esta variable ya cuenta con la suma de riesgos de zarpe
+
+# Definir nivel de alerta basado en las condiciones de riesgo combinadas
+if (Riesgo_Precio == 1 && Riesgo_Zarpe == 0) {
+  nivel_alerta <- "Media"
+  mensaje_alerta <- "Alerta Media: Precio de Merluza Común bajo y sin riesgos significativos de zarpe."
+  color_alerta <- "orange"
+} else if (Riesgo_Precio == 0 && Riesgo_Zarpe >= 1) {
+  nivel_alerta <- "Media"
+  mensaje_alerta <- "Alerta Media: Zarpes significativos, sin riesgo por el precio de la Merluza Común."
+  color_alerta <- "orange"
+} else if (Riesgo_Precio == 1 && Riesgo_Zarpe > 0) {
+  nivel_alerta <- "Alto"
+  mensaje_alerta <- "Riesgo Alto: Riesgos críticos tanto por precio como por zarpe para Merluza Común."
+  color_alerta <- "red"
+} else {
+  nivel_alerta <- "Bajo"
+  mensaje_alerta <- "Riesgo Bajo: No se detectan condiciones de riesgo significativas para la Merluza Común hoy."
+  color_alerta <- "green"
 }
 
-# Determinar el nivel de riesgo general del dÃ­a
-nivel_riesgo <- ifelse(!riesgo_precio_merluza_comun && riesgo_zarpe_cantidad == 1, "Bajo",
-                       ifelse(riesgo_precio_merluza_comun && riesgo_zarpe_cantidad == 1, "Medio",
-                              ifelse(riesgo_precio_merluza_comun && riesgo_zarpe_cantidad >= 2, "Alto", "Ninguno")))
-
-# ExplicaciÃ³n detallada del riesgo
-explicacion <- switch(nivel_riesgo,
-                      "Bajo" = "El riesgo es bajo principalmente porque no hay alerta de precio para la Merluza Común y solo una caleta registra un número elevado de embarcaciones operando.",
-                      "Medio" = "El riesgo es medio debido a que el precio de la Merluza Común está en riesgo y al menos una caleta ha registrado un número elevado de zarpes.",
-                      "Alto" = "El riesgo es alto ya que el precio de la Merluza Común está en riesgo y dos o más caletas tienen un número elevado de zarpes.",
-                      "Ninguno" = "No se detectan condiciones de riesgo significativas para el día actual.")
-
-# Mostrar el resultado
-cat(paste("<div style='font-size: 24px; font-weight: bold; color:", 
-          ifelse(nivel_riesgo == "Bajo", "green", 
-                 ifelse(nivel_riesgo == "Medio", "orange", "red")), ";'>",
-          "Riesgo del Día (Merluza Común): ", nivel_riesgo, "</div>\n"))
-cat(paste("<div style='font-size: 18px;'>", explicacion, "</div>"))
-
+# Mostrar el resultado de la evaluación de riesgo
+cat(paste("<div style='font-size: 24px; font-weight: bold; color:", color_alerta, ";'>",
+          "Nivel de Alerta del Día: ", nivel_alerta, "</div>\n"))
+cat(paste("<div style='font-size: 24px; color:", color_alerta, "'>", mensaje_alerta, "</div>"))
 
 cat('<hr>')
-
 
 ```
 
 
 
 ```{r precio-promedio-merluza, echo=FALSE, results='asis'}
-# no se ve -> Precio promedio merluza comÃºn en los ultimos 30 dias (TPM)
 ## Cuarto Producto Grafico de Precio Promedio de Merluza en el mes
-library(dplyr)
-library(knitr)
-library(kableExtra)
-
-# Filtrar y agrupar los datos_precios para Merluza ComÃºn
+# Agrupar los datos por FECHA y calcular el precio promedio de la caja por día
 merluza_comun_datos_precios <- datos_precios_30_dias %>%
-  filter(ESPECIE == "MERLUZA COMUN") %>%
   group_by(FECHA) %>%
   summarise(
-    PRECIO_KG = max(PRECIO_KG, na.rm = TRUE),  # Usar max para obtener un valor no-NA si estÃ¡ disponible
-    PRECIO_CAJA = max(PRECIO_CAJA, na.rm = TRUE),
-    Precio_Kilo_De_Caja = ifelse(!is.na(PRECIO_CAJA) && PRECIO_CAJA != 0, round(PRECIO_CAJA / 27, 0), NA),
-    # Asegurarse de excluir Inf y -Inf en el cÃ¡lculo del promedio
-    Precio_Promedio = ifelse(!is.infinite(PRECIO_KG) && !is.infinite(Precio_Kilo_De_Caja),
-                             round(mean(c(PRECIO_KG, ifelse(!is.na(PRECIO_CAJA), PRECIO_CAJA / 27, NA)), na.rm = TRUE), 0),
-                             ifelse(!is.infinite(PRECIO_KG), PRECIO_KG,
-                                    ifelse(!is.infinite(Precio_Kilo_De_Caja), Precio_Kilo_De_Caja, NA))
-    )
+    Precio_Promedio = mean(PRECIO_CAJA, na.rm = TRUE)  # Calcular el promedio excluyendo NA
   ) %>%
-  ungroup()  # Eliminar la agrupaciÃ³n para operaciones futuras
-
+  ungroup()  # Eliminar la agrupación para operaciones futuras
 
 ```
 
@@ -463,6 +407,5 @@ Grafico_Precio_Merluza_Comun_30dias <- ggplotly(p)
 Grafico_Precio_Merluza_Comun_30dias
 
 ```
-
 
 
