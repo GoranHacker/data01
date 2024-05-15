@@ -129,7 +129,7 @@ clima_url <- "https://www.dropbox.com/scl/fi/8kbgi226rn3ltwfgsycn3/forecast.csv?
 temp_file_clima <- tempfile()
 download.file(clima_url, temp_file_clima, mode = "wb")
 datos_clima <- read_csv(temp_file_clima)
-names(datos_clima)[names(datos_clima) == "X...Place"] <- "Place"
+#names(datos_clima)[names(datos_clima) == "X...Place"] <- "Place"
 
 ```
 <div style="font-size:24px; font-weight:bold;">
