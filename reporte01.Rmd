@@ -9,14 +9,14 @@ output:
 ---
 
 <div style="font-family: Arial, sans-serif; font-size: 16px;">
-<p>Este documento, desarrollado en conjunto por la Unidad de Inteligencia y las Direcciones Regionales en el marco del Programa GEMM, ofrece un anÃ¡lisis actualizado de las actividades de pesca en caletas del Maule y los precios en el TPM. El objetivo es facilitar la toma de decisiones estratÃ©gicas y la activaciÃ³n de fiscalizaciones efectivas.</p>
+<p>Este documento, desarrollado en conjunto por la Unidad de Inteligencia y las Direcciones Regionales en el marco del Programa GEMM, ofrece un analisis actualizado de las actividades de pesca en caletas del Maule y los precios en el TPM. El objetivo es facilitar la toma de decisiones estratégicas y la activación de fiscalizaciones efectivas.</p>
 <p><strong>Fuentes de Datos:</strong></p>
 <ul>
-  <li><strong>Datos de precios y zarpes:</strong> Recopilados diariamente de hojas de cÃ¡lculo en lÃ­nea gestionadas por las regiones.</li>
-  <li><strong>InformaciÃ³n meteorolÃ³gica:</strong> Es obtenida de APIs que proporcionan pronÃ³sticos actualizados cada hora, para complementar los anÃ¡lisis con las condiciones climÃ¡ticas que impactan la pesca.</li>
+  <li><strong>Datos de precios y zarpes:</strong> Recopilados diariamente de hojas de cálculo en lÃ­nea gestionadas por las regiones.</li>
+  <li><strong>Información meteorológica:</strong> Es obtenida de APIs que proporcionan pronósticos actualizados cada hora, para complementar los análisis con las condiciones climáticas que impactan la pesca.</li>
 </ul>
-<p><strong>AutoactualizaciÃ³n:</strong> El informe se actualiza automÃ¡ticamente cada hora mediante cron jobs, garantizando la relevancia de la informaciÃ³n y demostrando el potencial de la tecnologÃ­a para optimizar la gestiÃ³n y monitoreo en tiempo real.</p>
-<p>Este reporte es parte de una iniciativa en fase inicial y se espera que evolucione con el aporte de diversos actores de SERNAPESCA, refinando y validando continuamente los anÃ¡lisis presentados.</p>
+<p><strong>Autoactualización:</strong> El informe se actualiza automáticamente cada hora mediante cron jobs, garantizando la relevancia de la información y demostrando el potencial de la tecnología para optimizar la gestión y monitoreo en tiempo real.</p>
+<p>Este reporte es parte de una iniciativa en fase inicial y se espera que evolucione con el aporte de diversos actores de SERNAPESCA, refinando y validando continuamente los análisis presentados.</p>
 </div>
 
 <hr>
@@ -63,7 +63,7 @@ datos_precios <- datos_precios %>%
   unlink(temp_file_PRECIOS)
 
   ## Filtrar los datos_precios por la ÃÂºltima fecha ##
-  # Identificar la ÃÂºltima fecha
+  # Identificar la Ultima fecha
   ultima_fecha_precio <- max(datos_precios$FECHA)
 
   # Filtrar los datos_precios para incluir solo la ÃÂºltima fecha
@@ -177,14 +177,14 @@ print(tabla_final)
 condiciones_adversas <- any(datos_filtrados$windspeed_kph > 30 | datos_filtrados$swell_period_secs > 20 | datos_filtrados$wave_height_m > 4)
 
 if (!condiciones_adversas) {
-  cat("<p style='font-weight: bold; color: red;'>Las condiciones meteorolÃ³gicas podrÃ­an ser positivas para la pesca.</p>")
+  cat("<p style='font-weight: bold; color: red;'>Las condiciones meteoreológicas podrían ser positivas para la pesca.</p>")
 } else {
-  cat("<p>Las condiciones meteorolÃ³gicas son malas para la pesca.</p>")
+  cat("<p>Las condiciones meteoreológicas son malas para la pesca.</p>")
 }
 ```
 
 <div style="font-size:24px; font-weight:bold;">
-  InformaciÃ³n de precios de recursos en el TPM
+  Información de precios de recursos en el TPM
 </div>
 
 ```{r results-table, results='asis', echo=FALSE}
@@ -209,7 +209,7 @@ if(nrow(datos_precios_ultima_fecha_precio) > 0) {
     kable("html", caption = paste("Precios por especie para el", fecha_formateada_precio)) %>%
     kable_styling(bootstrap_options = c("striped", "hover", "condensed", "bordered"))
 } else {
-  print("No hay datos_precios disponibles para la Ã¼ltima fecha.")
+  print("No hay datos_precios disponibles para la última fecha.")
 }
 
 ```
@@ -217,7 +217,7 @@ if(nrow(datos_precios_ultima_fecha_precio) > 0) {
 
 
 ```{r alertas-precios-merluza-comun, echo=FALSE, results='asis'}
-# CondiciÃ³n de alerta especÃ­fica para Merluza ComÃºn
+# CondiciÃ³n de alerta específica para Merluza Común
 precio_umbral_merluza_comun <- 30000
 
 # Filtrar los datos solo para Merluza ComÃºn
@@ -269,13 +269,13 @@ if(nrow(datos_zarpe_ultima_fecha) > 0) {
   # Imprimir la tabla con knitr y kableExtra para un mejor formato
   print(knitr::kable(datos_mostrar,
                      format = "html",
-                     caption = paste("Actividades de Zarpe para la ltima fecha registrada:", fecha_formateada_zarpe),
+                     caption = paste("Actividades de Zarpe para la última fecha registrada:", fecha_formateada_zarpe),
                      align = c('l', 'l', 'c', 'c', 'l')) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed", "bordered", "responsive")) %>%
     column_spec(1, bold = TRUE) %>%
     column_spec(2:5, border_left = TRUE, border_right = TRUE))
 } else {
-  print("No hay actividades de zarpe disponibles para la Ãºltima fecha.")
+  print("No hay actividades de zarpe disponibles para la última fecha.")
 }
 ```
 
@@ -300,7 +300,7 @@ for (caleta in names(caletas_alertas)) {
   # Verificar condiciones para cada caleta
   if (nrow(datos_zarpe_caleta) > 0 && !is.na(datos_zarpe_caleta$NUMERO_EMBARCACIONES_MAX) &&
       datos_zarpe_caleta$NUMERO_EMBARCACIONES_MAX > umbral) {
-    cat(paste("<div style='color: red; font-weight: bold;'>Alerta de Riesgo en la Caleta", caleta, "- NÃºmero de embarcaciones excede el umbral con", datos_zarpe_caleta$NUMERO_EMBARCACIONES_MAX, "embarcaciones.</div>\n"))
+    cat(paste("<div style='color: red; font-weight: bold;'>Alerta de Riesgo en la Caleta", caleta, "- Número de embarcaciones excede el umbral con", datos_zarpe_caleta$NUMERO_EMBARCACIONES_MAX, "embarcaciones.</div>\n"))
     Suma_Riesgo_Zarpe_Caleta <- Suma_Riesgo_Zarpe_Caleta + 1
   }
 }
@@ -321,13 +321,13 @@ datos_actuales_zarpe <- max(datos_zarpe$FECHA) == fecha_actual
 
 # Mostrar advertencias si los datos no estÃÂ¡n actualizados
 if (!datos_actuales_precios || !datos_actuales_zarpe) {
-  mensaje_advertencia <- paste("Advertencia: Los datos no estÃ¡n actualizados al dÃ­a de hoy. ",
+  mensaje_advertencia <- paste("Advertencia: Los datos no están actualizados al día de hoy. ",
                                ifelse(!datos_actuales_precios, "Los datos de precios son del ", ""),
                                ifelse(!datos_actuales_precios, format(max(datos_precios$FECHA), "%d de %B de %Y"), ""),
                                ifelse(!datos_actuales_precios && !datos_actuales_zarpe, " y ", ""),
                                ifelse(!datos_actuales_zarpe, "los datos de zarpe son del ", ""),
                                ifelse(!datos_actuales_zarpe, format(max(datos_zarpe$FECHA), "%d de %B de %Y"), ""),
-                               ". Por favor, verifica la relevancia de este anÃ¡lisis para decisiones crÃ­ticas.")
+                               ". Por favor, verifica la relevancia de este análisis para decisiones crí­ticas.")
   cat("<div style='color: red; font-size: 18px;'>", mensaje_advertencia, "</div>")
 }
 
@@ -345,25 +345,25 @@ Riesgo_Zarpe <- Suma_Riesgo_Zarpe_Caleta  # Esta variable ya cuenta con la suma 
 # Definir nivel de alerta basado en las condiciones de riesgo combinadas
 if (Riesgo_Precio == 1 && Riesgo_Zarpe == 0) {
   nivel_alerta <- "Media"
-  mensaje_alerta <- "Alerta Media: Precio de Merluza ComÃºn bajo y sin riesgos significativos de zarpe."
+  mensaje_alerta <- "Alerta Media: Precio de Merluza Común bajo y sin riesgos significativos de zarpe."
   color_alerta <- "orange"
 } else if (Riesgo_Precio == 0 && Riesgo_Zarpe >= 1) {
   nivel_alerta <- "Media"
-  mensaje_alerta <- "Alerta Media: Zarpes significativos, sin riesgo por el precio de la Merluza ComÃºn."
+  mensaje_alerta <- "Alerta Media: Zarpes significativos, sin riesgo por el precio de la Merluza Común."
   color_alerta <- "orange"
 } else if (Riesgo_Precio == 1 && Riesgo_Zarpe > 0) {
   nivel_alerta <- "Alto"
-  mensaje_alerta <- "Riesgo Alto: Riesgos crÃ­ticos tanto por precio como por zarpe para Merluza ComÃºn."
+  mensaje_alerta <- "Riesgo Alto: Riesgos críticos tanto por precio como por zarpe para Merluza Común."
   color_alerta <- "red"
 } else {
   nivel_alerta <- "Bajo"
-  mensaje_alerta <- "Riesgo Bajo: No se detectan condiciones de riesgo significativas para la Merluza ComÃºn hoy."
+  mensaje_alerta <- "Riesgo Bajo: No se detectan condiciones de riesgo significativas para la Merluza Común hoy."
   color_alerta <- "green"
 }
 
 # Mostrar el resultado de la evaluaciÃ³n de riesgo
 cat(paste("<div style='font-size: 24px; font-weight: bold; color:", color_alerta, ";'>",
-          "Nivel de Alerta del DÃ­a: ", nivel_alerta, "</div>\n"))
+          "Nivel de Alerta del Dí­a: ", nivel_alerta, "</div>\n"))
 cat(paste("<div style='font-size: 24px; color:", color_alerta, "'>", mensaje_alerta, "</div>"))
 
 cat('<hr>')
@@ -380,18 +380,18 @@ merluza_comun_datos_precios <- datos_precios_30_dias %>%
   summarise(
     Precio_Promedio = mean(PRECIO_CAJA, na.rm = TRUE)  # Calcular el promedio excluyendo NA
   ) %>%
-  ungroup()  # Eliminar la agrupaciÃ³n para operaciones futuras
+  ungroup()  # Eliminar la agrupación para operaciones futuras
 
 ```
 
 <div style="font-size:24px; font-weight:bold;">
-  GrÃ¡fico Precio promedio merluza comÃºn en los ultimos 30 dÃ­as (TPM)
+  Gráfico Precio promedio merluza Común en los ultimos 30 días (TPM)
 </div>
 
 
 ```{r grafico-precio-promedio-merluza-mas-fechas, echo=FALSE, fig.height=5, fig.width=12, message=FALSE, warning=FALSE, results='asis'}
 
-# AsegurÃÂ¡ndonos de que las fechas estÃÂ©n en formato de fecha para que ggplot las maneje correctamente
+# Asegurandonos de que las fechas estÃÂ©n en formato de fecha para que ggplot las maneje correctamente
 merluza_comun_datos_precios$FECHA <- as.Date(merluza_comun_datos_precios$FECHA)
 
 # Creando el grÃÂ¡fico con ggplot2
@@ -399,7 +399,7 @@ p <- ggplot(data = merluza_comun_datos_precios, aes(x = FECHA, y = Precio_Promed
   geom_line(colour = "red", size = 1) +
   geom_point(colour = "black", size = 3, shape = 21, fill = "pink") +
   geom_text(aes(label = Precio_Promedio), vjust = -0.5, colour = "black", size = 3) +
-  labs(title = "Precio Promedio de Merluza ComÃºn Ãºltimos 30 dÃ­as",
+  labs(title = "Precio Promedio de Merluza Común últimos 30 días",
        x = "Fecha",
        y = "Precio Promedio") +
   theme_minimal() +
