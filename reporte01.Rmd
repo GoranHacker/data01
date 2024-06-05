@@ -174,7 +174,7 @@ tabla_final <- datos_filtrados %>%
 print(tabla_final)
 
 # EvaluaciÃ³n de las condiciones meteorolÃ³gicas
-condiciones_adversas <- any(datos_filtrados$windspeed_kph > 30 | datos_filtrados$swell_period_secs > 20 | datos_filtrados$wave_height_m > 4)
+condiciones_adversas <- any(datos_filtrados$windspeed_kph > 30 | datos_filtrados$swell_period_secs > 20 | datos_filtrados$wave_height_m > 4 | datos_filtrados$Direccion_Viento %in% c("Norte", "Noreste", "Noroeste"))
 
 if (!condiciones_adversas) {
   cat("<p style='font-weight: bold; color: red;'>Las condiciones meteoreológicas podrían ser positivas para la pesca.</p>")
