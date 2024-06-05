@@ -133,7 +133,7 @@ names(datos_clima)[names(datos_clima) == "X...Place"] <- "Place"
 
 ```
 <div style="font-size:24px; font-weight:bold;">
-  Datos climÃ¡ticos de las comunas del Maule
+  Datos climáticos de las comunas del Maule
 </div>
 
 
@@ -174,12 +174,12 @@ tabla_final <- datos_filtrados %>%
 print(tabla_final)
 
 # EvaluaciÃ³n de las condiciones meteorolÃ³gicas
-condiciones_adversas <- any(datos_filtrados$windspeed_kph > 30 | datos_filtrados$swell_period_secs > 20 | datos_filtrados$wave_height_m > 4)
+condiciones_adversas <- any(datos_filtrados$windspeed_kph > 30 | datos_filtrados$swell_period_secs > 20 | datos_filtrados$wave_height_m > 4 | datos_filtrados$Direccion_Viento %in% c("Norte", "Noreste", "Noroeste"))
 
 if (!condiciones_adversas) {
   cat("<p style='font-weight: bold; color: red;'>Las condiciones meteoreológicas podrían ser positivas para la pesca.</p>")
 } else {
-  cat("<p>Las condiciones meteoreológicas son malas para la pesca.</p>")
+  cat("<p style='font-weight: bold; color: red;'>Las condiciones meteoreológicas son malas para la pesca.</p>")
 }
 ```
 
@@ -242,7 +242,7 @@ if (nrow(datos_merluza_comun) > 0 && datos_merluza_comun$PRECIO_CAJA_MIN <= prec
 
 
 <div style="font-size:24px; font-weight:bold;">
-  InformaciÃ³n de zarpes en las caletas del Maule
+  Información de zarpes en las caletas del Maule
 </div>
 
 
