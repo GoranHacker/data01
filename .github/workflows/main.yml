@@ -2,8 +2,7 @@ name: Run R Script and Generate Report
 
 on:
   schedule:
-    - cron: '0 * * * *'  # Ejecuta a las 02:15, 03:15, 04:15, 05:15, 06:15, 07:15, y 08:15 UTC que corresponden a las 22:15, 23:15, 00:15, 01:15, 02:15, 03:15, y 04:15 hora de Chile.
-
+    - cron: '0 * * * *'  # Ejecuta cada una hora
 jobs:
   run-r-script:
     runs-on: ubuntu-latest
