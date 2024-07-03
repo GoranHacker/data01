@@ -1,6 +1,6 @@
 ---
 title: "Informe diario de riesgo"
-author: "Grupo Estrategico Macrozonal Merluza ComÃºn GEMM"
+author: "Grupo Estrategico Macrozonal Merluza Común GEMM"
 date: "`r Sys.Date()`"
 output:
   html_document:
@@ -9,10 +9,10 @@ output:
 ---
 
 <div style="font-family: Arial, sans-serif; font-size: 16px;">
-<p>Este documento, desarrollado en conjunto por la Unidad de Inteligencia y las Direcciones Regionales en el marco del Programa GEMM, ofrece un analisis actualizado de las actividades de pesca en caletas del Maule y los precios en el TPM. El objetivo es facilitar la toma de decisiones estratégicas y la activación de fiscalizaciones efectivas.</p>
+<p>Este documento, desarrollado en conjunto por la Unidad de Inteligencia y las Direcciones Regionales en el marco del Programa GEMM, ofrece un análisis actualizado de las actividades de pesca en caletas del Maule y los precios en el TPM. El objetivo es facilitar la toma de decisiones estratégicas y la activación de fiscalizaciones efectivas.</p>
 <p><strong>Fuentes de Datos:</strong></p>
 <ul>
-  <li><strong>Datos de precios y zarpes:</strong> Recopilados diariamente de hojas de cálculo en lÃ­nea gestionadas por las regiones.</li>
+  <li><strong>Datos de precios y zarpes:</strong> Recopilados diariamente de hojas de cálculo en línea gestionadas por las regiones.</li>
   <li><strong>Información meteorológica:</strong> Es obtenida de APIs que proporcionan pronósticos actualizados cada hora, para complementar los análisis con las condiciones climáticas que impactan la pesca.</li>
 </ul>
 <p><strong>Autoactualización:</strong> El informe se actualiza automáticamente cada hora mediante cron jobs, garantizando la relevancia de la información y demostrando el potencial de la tecnología para optimizar la gestión y monitoreo en tiempo real.</p>
@@ -40,6 +40,7 @@ library(plotly)
 library(DT)
 library(formattable)
 library(readr)
+library(RODBC)
 
 
 orden_especies <- c("MERLUZA COMUN", "MERLUZA AUSTRAL", "REINETA", "CONGRIO DORADO", "JUREL", "LOCOS", "CHORITO", "ALMEJA")
@@ -63,7 +64,7 @@ datos_precios <- datos_precios %>%
   unlink(temp_file_PRECIOS)
 
   ## Filtrar los datos_precios por la ÃÂºltima fecha ##
-  # Identificar la Ultima fecha
+  # Identificar la ÃÂºltima fecha
   ultima_fecha_precio <- max(datos_precios$FECHA)
 
   # Filtrar los datos_precios para incluir solo la ÃÂºltima fecha
@@ -142,7 +143,7 @@ names(datos_clima)[names(datos_clima) == "X...Place"] <- "Place"
 # Estos son los lugares de interÃ©s
 lugares_interes <- c("CONSTITUCION", "ILOCA", "LICANTEN", "PELLUHUE")
 
-# Define la fecha actual antes de cualquier operaciÃ³n que la utilice
+# Define la fecha actual antes de cualquier operación que la utilice
 fecha_actual <- Sys.Date()
 
 # Filtrar por lugares de interÃ©s y por la fecha actual
@@ -173,13 +174,13 @@ tabla_final <- datos_filtrados %>%
 
 print(tabla_final)
 
-# EvaluaciÃ³n de las condiciones meteorolÃ³gicas
+# Evaluación de las condiciones meteorológicas
 condiciones_adversas <- any(datos_filtrados$windspeed_kph > 30 | datos_filtrados$swell_period_secs > 20 | datos_filtrados$wave_height_m > 4 | datos_filtrados$Direccion_Viento %in% c("Norte", "Noreste", "Noroeste"))
 
 if (!condiciones_adversas) {
-  cat("<p style='font-weight: bold; color: red;'>Las condiciones meteoreológicas podrían ser positivas para la pesca.</p>")
+  cat("<p style='font-weight: bold; color: red;'>Las condiciones meteorológicas podrÃ­an ser positivas para la pesca.</p>")
 } else {
-  cat("<p style='font-weight: bold; color: red;'>Las condiciones meteoreológicas son malas para la pesca.</p>")
+  cat("<p style='font-weight: bold; color: red;'>Las condiciones meteorológicas son malas para la pesca.</p>")
 }
 ```
 
@@ -217,10 +218,10 @@ if(nrow(datos_precios_ultima_fecha_precio) > 0) {
 
 
 ```{r alertas-precios-merluza-comun, echo=FALSE, results='asis'}
-# CondiciÃ³n de alerta específica para Merluza Común
+# Condición de alerta especÃ­fica para Merluza Común
 precio_umbral_merluza_comun <- 30000
 
-# Filtrar los datos solo para Merluza ComÃºn
+# Filtrar los datos solo para Merluza Común
 datos_merluza_comun <- precios_por_especie %>%
   filter(ESPECIE == "MERLUZA COMUN") %>%
   summarize(PRECIO_CAJA_MIN = min(PRECIO_CAJA, na.rm = TRUE))
@@ -228,7 +229,7 @@ datos_merluza_comun <- precios_por_especie %>%
 # Inicializar la variable de riesgo
 Riesgo_Precio_Merluza <- 0
 
-# Verificar condiciÃ³n de riesgo para Merluza ComÃºn
+# Verificar condición de riesgo para Merluza Común
 if (nrow(datos_merluza_comun) > 0 && datos_merluza_comun$PRECIO_CAJA_MIN <= precio_umbral_merluza_comun) {
   cat(paste("<div style='color: red; font-weight: bold;'>Precio Riesgoso para MERLUZA COMUN - Precio bajo de PRECIO_CAJA alcanzado: $", datos_merluza_comun$PRECIO_CAJA_MIN, "</div>\n"))
   Riesgo_Precio_Merluza <- 1  # Establecer riesgo como verdadero
@@ -269,7 +270,7 @@ if(nrow(datos_zarpe_ultima_fecha) > 0) {
   # Imprimir la tabla con knitr y kableExtra para un mejor formato
   print(knitr::kable(datos_mostrar,
                      format = "html",
-                     caption = paste("Actividades de Zarpe para la última fecha registrada:", fecha_formateada_zarpe),
+                     caption = paste("Actividades de Zarpe para la ltima fecha registrada:", fecha_formateada_zarpe),
                      align = c('l', 'l', 'c', 'c', 'l')) %>%
     kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed", "bordered", "responsive")) %>%
     column_spec(1, bold = TRUE) %>%
@@ -321,13 +322,13 @@ datos_actuales_zarpe <- max(datos_zarpe$FECHA) == fecha_actual
 
 # Mostrar advertencias si los datos no estÃÂ¡n actualizados
 if (!datos_actuales_precios || !datos_actuales_zarpe) {
-  mensaje_advertencia <- paste("Advertencia: Los datos no están actualizados al día de hoy. ",
+  mensaje_advertencia <- paste("Advertencia: Los datos no están actualizados al dÃ­a de hoy. ",
                                ifelse(!datos_actuales_precios, "Los datos de precios son del ", ""),
                                ifelse(!datos_actuales_precios, format(max(datos_precios$FECHA), "%d de %B de %Y"), ""),
                                ifelse(!datos_actuales_precios && !datos_actuales_zarpe, " y ", ""),
                                ifelse(!datos_actuales_zarpe, "los datos de zarpe son del ", ""),
                                ifelse(!datos_actuales_zarpe, format(max(datos_zarpe$FECHA), "%d de %B de %Y"), ""),
-                               ". Por favor, verifica la relevancia de este análisis para decisiones crí­ticas.")
+                               ". Por favor, verifica la relevancia de este análisis para decisiones crÃ­ticas.")
   cat("<div style='color: red; font-size: 18px;'>", mensaje_advertencia, "</div>")
 }
 
@@ -336,7 +337,7 @@ if (!datos_actuales_precios || !datos_actuales_zarpe) {
 
 
 ```{r riesgo-del-dia-merluza-comun, echo=FALSE, results='asis'}
-# EvaluaciÃ³n combinada de riesgo de precio y zarpe
+# Evaluación combinada de riesgo de precio y zarpe
 
 # Inicializar variables para alertas
 Riesgo_Precio <- ifelse(Riesgo_Precio_Merluza, 1, 0)  # 1 si hay riesgo de precio, 0 si no
@@ -353,7 +354,7 @@ if (Riesgo_Precio == 1 && Riesgo_Zarpe == 0) {
   color_alerta <- "orange"
 } else if (Riesgo_Precio == 1 && Riesgo_Zarpe > 0) {
   nivel_alerta <- "Alto"
-  mensaje_alerta <- "Riesgo Alto: Riesgos críticos tanto por precio como por zarpe para Merluza Común."
+  mensaje_alerta <- "Riesgo Alto: Riesgos crÃ­ticos tanto por precio como por zarpe para Merluza Común."
   color_alerta <- "red"
 } else {
   nivel_alerta <- "Bajo"
@@ -361,9 +362,9 @@ if (Riesgo_Precio == 1 && Riesgo_Zarpe == 0) {
   color_alerta <- "green"
 }
 
-# Mostrar el resultado de la evaluaciÃ³n de riesgo
+# Mostrar el resultado de la evaluación de riesgo
 cat(paste("<div style='font-size: 24px; font-weight: bold; color:", color_alerta, ";'>",
-          "Nivel de Alerta del Dí­a: ", nivel_alerta, "</div>\n"))
+          "Nivel de Alerta del DÃ­a: ", nivel_alerta, "</div>\n"))
 cat(paste("<div style='font-size: 24px; color:", color_alerta, "'>", mensaje_alerta, "</div>"))
 
 cat('<hr>')
@@ -384,14 +385,202 @@ merluza_comun_datos_precios <- datos_precios_30_dias %>%
 
 ```
 
+
 <div style="font-size:24px; font-weight:bold;">
-  Gráfico Precio promedio merluza Común en los ultimos 30 días (TPM)
+  Resumen de Cometidos por Oficina
+</div>
+
+```{r tabla_gesfip01, echo=FALSE, fig.height=5, fig.width=12, message=FALSE, warning=FALSE, results='asis'}
+
+
+# Conexión a la base de datos mediante DSN
+sernapesca <- odbcConnect(dsn = "Rquimera")
+
+# Cambiar el contexto a la base de datos Fip
+invisible(sqlQuery(sernapesca, "USE Fip"))
+
+# Consulta para obtener los campos relevantes
+consulta <- "
+SELECT
+  Cd_Oficina,
+  Nr_Cometido,
+  Fc_Inicio,
+  Fc_Termino,
+  Nr_RutResponsable
+FROM
+  Fip_Cometidos
+WHERE
+  YEAR(Fc_Inicio) = 2024 AND
+  Cd_Oficina IN (36, 40, 41)
+"
+
+# Ejecutar la consulta
+resultado <- sqlQuery(sernapesca, consulta)
+
+# Procesar los datos en R
+resultado <- resultado %>%
+  mutate(
+    Año_Cometido = format(as.Date(Fc_Inicio), "%Y"),
+    Mes_Cometido = format(as.Date(Fc_Inicio), "%m"),
+    Fecha_Cometido = format(as.Date(Fc_Inicio), "%d-%m-%Y"),
+    Numero_Cometido = paste(Cd_Oficina, Nr_Cometido, sep = "-"),
+    Oficina = case_when(
+      Cd_Oficina == 36 ~ "CONSTITUCION",
+      Cd_Oficina == 40 ~ "PELLUHUE",
+      Cd_Oficina == 41 ~ "LICANTEN",
+      TRUE ~ NA_character_
+    )
+  )
+
+# Filtrar datos para los últimos 30 días, 7 días y ayer
+today <- Sys.Date()
+last_30_days <- resultado %>% filter(as.Date(Fc_Inicio) >= (today - 30))
+last_7_days <- resultado %>% filter(as.Date(Fc_Inicio) >= (today - 7))
+yesterday <- resultado %>% filter(as.Date(Fc_Inicio) == (today - 1))
+
+# Resumir los datos
+summary_last_30_days <- last_30_days %>% group_by(Oficina) %>% summarise(Cometidos = n())
+summary_last_7_days <- last_7_days %>% group_by(Oficina) %>% summarise(Cometidos = n())
+summary_yesterday <- yesterday %>% group_by(Oficina) %>% summarise(Cometidos = n())
+
+# Combinar los resúmenes en una sola tabla
+summary_table <- summary_last_30_days %>%
+  rename(Cometidos_30_Dias = Cometidos) %>%
+  left_join(summary_last_7_days %>% rename(Cometidos_7_Dias = Cometidos), by = "Oficina") %>%
+  left_join(summary_yesterday %>% rename(Cometidos_Ayer = Cometidos), by = "Oficina")
+
+# Reemplazar NA por 0
+summary_table[is.na(summary_table)] <- 0
+
+# Mostrar la tabla con formato adecuado
+summary_table %>%
+  kable("html", caption = "Tabla Resumen de Cometidos por Oficina") %>%
+  kable_styling(full_width = FALSE, position = "left")
+
+# Cerrar la conexión
+odbcClose(sernapesca)
+
+```
+
+<div style="font-size:24px; font-weight:bold;">
+  Resumen de declaraciones y desembarque del dia anterior
+</div>
+```{r tabla_DA, echo=FALSE, fig.height=5, fig.width=12, message=FALSE, warning=FALSE, results='asis'}
+
+# Conexión a la base de datos SIGCUE mediante DSN
+sigcue <- odbcConnect(dsn = "Rquimera")
+
+# Cambiar el contexto a la base de datos SIGCUE
+invisible(sqlQuery(sigcue, "USE SIGCUE"))
+
+# Consulta para obtener los campos relevantes de la tabla SigcueDaDetalle
+consulta_sigcue_detalle <- "
+SELECT
+  nrFolio,
+  codEspecie,
+  factorConversion,
+  valorCaptura
+FROM
+  SigcueDaDetalle
+WHERE
+  codEspecie IN (242, 274, 445)
+"
+
+# Ejecutar la consulta
+resultado_sigcue_detalle <- sqlQuery(sigcue, consulta_sigcue_detalle)
+
+# Procesar los datos en R
+resultado_sigcue_detalle <- resultado_sigcue_detalle %>%
+  mutate(
+    Nr_declaracion = nrFolio,
+    Especie = case_when(
+      codEspecie == 242 ~ "Merluza Comun",
+      codEspecie == 274 ~ "Reineta",
+      codEspecie == 445 ~ "Jibia",
+      TRUE ~ NA_character_
+    ),
+    Desembarque = valorCaptura * factorConversion
+  ) %>%
+  select(Nr_declaracion, Especie, Desembarque)
+
+# Consulta para obtener los campos relevantes de la tabla SigcueDaEncabezadoENCTest
+consulta_sigcue_encabezado <- "
+SELECT
+  Nr_Folio,
+  Cd_Nave,
+  Cd_PtoLlegada,
+  Fc_Llegada
+FROM
+  SigcueDaEncabezadoENCTest
+WHERE
+  YEAR(Fc_Llegada) = YEAR(GETDATE()) AND
+  Cd_PtoLlegada IN (286, 268, 636)
+"
+
+# Ejecutar la consulta
+resultado_sigcue_encabezado <- sqlQuery(sigcue, consulta_sigcue_encabezado)
+
+# Procesar los datos en R
+resultado_sigcue_encabezado <- resultado_sigcue_encabezado %>%
+  mutate(
+    Nr_declaracion = Nr_Folio,
+    Caleta = case_when(
+      Cd_PtoLlegada == 286 ~ "CURANIPE",
+      Cd_PtoLlegada == 268 ~ "DUAO",
+      Cd_PtoLlegada == 636 ~ "MAGUILLINES",
+      TRUE ~ NA_character_
+    ),
+    Fecha_Desembarque = as.Date(Fc_Llegada, format = "%Y-%m-%d")
+  ) %>%
+  select(Nr_declaracion, Caleta, Fecha_Desembarque)
+
+# Unir las dos tablas por Nr_declaracion
+resultado_combinado <- resultado_sigcue_detalle %>%
+  inner_join(resultado_sigcue_encabezado, by = "Nr_declaracion")
+
+# Filtrar los datos del día anterior a hoy
+yesterday <- Sys.Date() - 1
+datos_ayer <- resultado_combinado %>%
+  filter(Fecha_Desembarque == yesterday)
+
+# Resumir los datos por especie y caleta para desembarque
+resumen_desembarque <- datos_ayer %>%
+  group_by(Caleta, Especie) %>%
+  summarise(
+    Total_Desembarque = sum(Desembarque, na.rm = TRUE),
+    .groups = 'drop'
+  )
+
+# Resumir los datos por especie y caleta para declaraciones
+resumen_declaraciones <- datos_ayer %>%
+  group_by(Caleta, Especie) %>%
+  summarise(
+    Total_Declaraciones = n(),
+    .groups = 'drop'
+  )
+
+# Unir los resúmenes en una sola tabla
+resumen_final <- resumen_declaraciones %>%
+  left_join(resumen_desembarque, by = c("Caleta", "Especie"))
+
+resumen_final %>%
+  kable("html", caption = "Resumen Combinado de Desembarques y Declaraciones por Especie y Caleta (Ayer)") %>%
+  kable_styling(full_width = FALSE, position = "left")
+
+# Cerrar la conexión
+odbcClose(sigcue)
+
+
+
+```
+<div style="font-size:24px; font-weight:bold;">
+  Gráfico Precio promedio merluza común en los ultimos 30 días (TPM)
 </div>
 
 
 ```{r grafico-precio-promedio-merluza-mas-fechas, echo=FALSE, fig.height=5, fig.width=12, message=FALSE, warning=FALSE, results='asis'}
 
-# Asegurandonos de que las fechas estÃÂ©n en formato de fecha para que ggplot las maneje correctamente
+# AsegurÃÂ¡ndonos de que las fechas estÃÂ©n en formato de fecha para que ggplot las maneje correctamente
 merluza_comun_datos_precios$FECHA <- as.Date(merluza_comun_datos_precios$FECHA)
 
 # Creando el grÃÂ¡fico con ggplot2
@@ -414,6 +603,3 @@ Grafico_Precio_Merluza_Comun_30dias <- ggplotly(p)
 Grafico_Precio_Merluza_Comun_30dias
 
 ```
-
-
-
