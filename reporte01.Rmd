@@ -123,7 +123,7 @@ datos_precios <- datos_precios %>%
     filter(FECHA >= fecha_inicio_zarpe & FECHA <= ultima_fecha_zarpe)
 
 # URL del archivo CSV de Clima
-clima_url <- "https://www.dropbox.com/scl/fi/8kbgi226rn3ltwfgsycn3/forecast.csv?rlkey=ebeqdo10c0ktgp7e81zfrqvgb&dl=1"
+clima_url <- "https://drive.google.com/uc?export=download&id=1G4qE1Ommk68svmnBOgh9KfFzgXhC56mQ"
 
 # Descargar y leer datos del clima
 temp_file_clima <- tempfile()
@@ -150,17 +150,6 @@ datos_filtrados <- datos_clima %>%
   filter(Place %in% lugares_interes, as.Date(date) == fecha_actual) %>%
   select(Place, date, windspeed_kph, swell_period_secs, wind_direction, wave_height_m) %>%
   mutate(
-    Direccion_Viento = case_when(
-      wind_direction < 22.5 | wind_direction >= 337.5 ~ "Norte",
-      wind_direction >= 22.5 & wind_direction < 67.5 ~ "Noreste",
-      wind_direction >= 67.5 & wind_direction < 112.5 ~ "Este",
-      wind_direction >= 112.5 & wind_direction < 157.5 ~ "Sureste",
-      wind_direction >= 157.5 & wind_direction < 202.5 ~ "Sur",
-      wind_direction >= 202.5 & wind_direction < 247.5 ~ "Suroeste",
-      wind_direction >= 247.5 & wind_direction < 292.5 ~ "Oeste",
-      wind_direction >= 292.5 & wind_direction < 337.5 ~ "Noroeste",
-      TRUE ~ "Desconocido"
-    ),
     windspeed_kph = cell_spec(windspeed_kph, "html", color = ifelse(windspeed_kph > 30, "red", "black")),
     swell_period_secs = cell_spec(swell_period_secs, "html", color = ifelse(swell_period_secs > 20, "red", "black")),
     wave_height_m = cell_spec(wave_height_m, "html", color = ifelse(wave_height_m > 4, "red", "black"))
@@ -174,12 +163,12 @@ tabla_final <- datos_filtrados %>%
 print(tabla_final)
 
 # Evaluación de las condiciones meteorológicas
-condiciones_adversas <- any(datos_filtrados$windspeed_kph > 30 | datos_filtrados$swell_period_secs > 20 | datos_filtrados$wave_height_m > 4 | datos_filtrados$Direccion_Viento %in% c("Norte", "Noreste", "Noroeste"))
+condiciones_adversas <- any(datos_filtrados$windspeed_kph > 30 | datos_filtrados$swell_period_secs > 20 | datos_filtrados$wave_height_m > 4 | datos_filtrados$wind_direction %in% c("N", "NO", "NE"))
 
 if (!condiciones_adversas) {
-  cat("<p style='font-weight: bold; color: red;'>Las condiciones meteorológicas podrÃ­an ser positivas para la pesca.</p>")
+  cat("<p style='font-weight: bold; color: red;'>Las condiciones meteorológicas podrían ser positivas para la pesca.</p>")
 } else {
-  cat("<p style='font-weight: bold; color: red;'>Las condiciones meteorológicas son malas para la pesca.</p>")
+  cat("<p style='font-weight: bold; color: red;'>Las condiciones meteorológicas podrían ser malas para la pesca.</p>")
 }
 ```
 
