@@ -123,7 +123,7 @@ datos_precios <- datos_precios %>%
     filter(FECHA >= fecha_inicio_zarpe & FECHA <= ultima_fecha_zarpe)
 
 # URL del archivo CSV de Clima
-clima_url <- "https://drive.google.com/uc?export=download&id=1G4qE1Ommk68svmnBOgh9KfFzgXhC56mQ"
+clima_url <- "https://drive.google.com/uc?export=download&id=1OrkX7QZi3HWTg83zdaCq_j8tGhvJsQlf"
 
 # Descargar y leer datos del clima
 temp_file_clima <- tempfile()
