@@ -45,25 +45,12 @@ library(googledrive)
 
 
 ####Cambiar donde este ese archvivo
-drive_auth(path = Sys.getenv("GDRIVE_KEY"))
 
 
 orden_especies <- c("MERLUZA COMUN", "MERLUZA AUSTRAL", "REINETA", "CONGRIO DORADO", "JUREL", "LOCOS", "CHORITO", "ALMEJA")
 
-folder_id <- "1Qq6qK9TAYm7QfycULcZxYKaFX0oAEYOa"
-  file_name <- "forecast"
-  
-  # List all files in the folder
-  files <- drive_ls(as_id(folder_id))
-  
-  # Find the file with the specified name
-  file_info <- files[files$name == file_name, ]
-  
-  # Download the file
-  drive_download(as_id(file_info$id), path = paste0(tempdir(), "/", file_info$name), overwrite = TRUE)
-datos_clima <- read.csv(paste0(tempdir(), "/", file_info$name))
-  
-  names(datos_clima)[names(datos_clima) == "X...Place"] <- "Place"
+datos_clima <- read.csv("https://drive.google.com/uc?export=download&id=1vO_v87eXlg4tacpLilJic4F28XHcngpi")
+names(datos_clima)[names(datos_clima) == "X...Place"] <- "Place"
 
 # PRECIOS
   # URL del archivo Excel de precios publicado
@@ -339,8 +326,6 @@ if (!datos_actuales_precios || !datos_actuales_zarpe) {
 
 ```
 
-
-
 ```{r riesgo-del-dia-merluza-comun, echo=FALSE, results='asis'}
 # Evaluación combinada de riesgo de precio y zarpe
 
@@ -376,8 +361,6 @@ cat('<hr>')
 
 ```
 
-
-
 ```{r precio-promedio-merluza, echo=FALSE, results='asis'}
 ## Cuarto Producto Grafico de Precio Promedio de Merluza en el mes
 # Agrupar los datos por FECHA y calcular el precio promedio de la caja por dÃ­a
@@ -396,19 +379,9 @@ merluza_comun_datos_precios <- datos_precios_30_dias %>%
 </div>
 
 ```{r tabla_gesfip01, fig.height=5, fig.width=12, message=FALSE, warning=FALSE, results='asis'}
-# ID de la carpeta en Google Drive
-folder_id <- "18JAc_4N11qkGmk3nimk7RnKSAiQbBDex"
-file_name <- "resumen_gesfip.csv"
-
-# Listar archivos en la carpeta y obtener el ID del archivo específico
-files_in_folder <- drive_ls(path = as_id(folder_id))
-file <- files_in_folder %>% filter(name == file_name)
-
-# Descargar el archivo temporalmente
-drive_download(as_id(file$id), path = file_name, overwrite = TRUE)
 
 # Leer el archivo
-summary_table <- read_csv(file_name)
+summary_table <- read.csv("https://drive.google.com/uc?export=download&id=18KlRYijgoSS4TGzSoM5bv67FXEwa0JmT")
 # Mostrar la tabla con formato adecuado
 summary_table %>%
   kable("html", caption = "Tabla Resumen de Cometidos por Oficina") %>%
@@ -422,19 +395,9 @@ summary_table %>%
   Resumen de declaraciones y desembarque del dia anterior
 </div>
 ```{r tabla_DA, echo=FALSE, fig.height=5, fig.width=12, message=FALSE, warning=FALSE, results='asis'}
-# Unir los resúmenes en una sola tabla
-folder_id <- "18JAc_4N11qkGmk3nimk7RnKSAiQbBDex"
-file_name <- "resumen_desembarques_final.csv"
-
-# Listar archivos en la carpeta y obtener el ID del archivo específico
-files_in_folder <- drive_ls(path = as_id(folder_id))
-file <- files_in_folder %>% filter(name == file_name)
-
-# Descargar el archivo temporalmente
-drive_download(as_id(file$id), path = file_name, overwrite = TRUE)
 
 # Leer el archivo CSV
-resumen_final <- read_csv(file_name)
+resumen_final <- read.csv("https://drive.google.com/uc?export=download&id=18RDvU4z3JTqylai8BFh1I0mMTL6cXUP-")
 
 # Mostrar la tabla combinada
 resumen_final %>%
