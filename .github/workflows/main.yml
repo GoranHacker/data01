@@ -17,6 +17,13 @@ jobs:
         with:
           r-version: '4.1.0'
       
+      - name: Cache R packages
+        uses: actions/cache@v2
+        with:
+          path: ${{ runner.tool_cache }}/R
+          key: ${{ runner.os }}-r-${{ hashFiles('**/reporte01.Rmd') }}
+          restore-keys: ${{ runner.os }}-r-
+
       - name: Install system dependencies
         run: |
           sudo apt-get update
@@ -25,7 +32,7 @@ jobs:
       - name: Install R packages
         run: |
           Rscript -e "install.packages(c('rmarkdown', 'tidyverse', 'httr', 'dplyr', 'readxl', 'knitr', 'kableExtra', 'tidyr', 'ggplot2', 'plotly', 'readr', 'DT', 'RODBC', 'formattable', 'googledrive'), dependencies = TRUE)"
-      
+
       - name: Run R script and Render HTML
         run: |
           Rscript -e "rmarkdown::render('reporte01.Rmd', output_file = 'index.html')"
