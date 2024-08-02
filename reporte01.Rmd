@@ -45,7 +45,7 @@ library(googledrive)
 
 
 ####Cambiar donde este ese archvivo
-drive_auth(path = "key.json")### esto cambiar a donde quede el archivo key.json
+drive_auth(path = Sys.getenv("GDRIVE_KEY"))
 
 
 orden_especies <- c("MERLUZA COMUN", "MERLUZA AUSTRAL", "REINETA", "CONGRIO DORADO", "JUREL", "LOCOS", "CHORITO", "ALMEJA")
