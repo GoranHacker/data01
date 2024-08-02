@@ -25,9 +25,9 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
-	echo = FALSE,
-	message = FALSE,
-	warning = FALSE
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE
 )
 library(httr)
 library(readxl)
@@ -40,9 +40,17 @@ library(plotly)
 library(DT)
 library(formattable)
 library(readr)
+library(RODBC)
+library(googledrive)
+
+
+####Cambiar donde este ese archvivo
 
 
 orden_especies <- c("MERLUZA COMUN", "MERLUZA AUSTRAL", "REINETA", "CONGRIO DORADO", "JUREL", "LOCOS", "CHORITO", "ALMEJA")
+
+datos_clima <- read.csv("https://drive.google.com/uc?export=download&id=1vO_v87eXlg4tacpLilJic4F28XHcngpi")
+names(datos_clima)[names(datos_clima) == "X...Place"] <- "Place"
 
 # PRECIOS
   # URL del archivo Excel de precios publicado
@@ -123,13 +131,9 @@ datos_precios <- datos_precios %>%
     filter(FECHA >= fecha_inicio_zarpe & FECHA <= ultima_fecha_zarpe)
 
 # URL del archivo CSV de Clima
-clima_url <- "https://drive.google.com/uc?export=download&id=1OrkX7QZi3HWTg83zdaCq_j8tGhvJsQlf"
 
-# Descargar y leer datos del clima
-temp_file_clima <- tempfile()
-download.file(clima_url, temp_file_clima, mode = "wb")
-datos_clima <- read_csv(temp_file_clima)
-names(datos_clima)[names(datos_clima) == "X...Place"] <- "Place"
+  
+  
 
 ```
 <div style="font-size:24px; font-weight:bold;">
@@ -168,7 +172,7 @@ condiciones_adversas <- any(datos_filtrados$windspeed_kph > 30 | datos_filtrados
 if (!condiciones_adversas) {
   cat("<p style='font-weight: bold; color: red;'>Las condiciones meteorológicas podrían ser positivas para la pesca.</p>")
 } else {
-  cat("<p style='font-weight: bold; color: red;'>Las condiciones meteorológicas podrían ser malas para la pesca.</p>")
+  cat("<p style='font-weight: bold; color: red;'>Las condiciones meteorológicas podrían s malas para la pesca.</p>")
 }
 ```
 
@@ -322,8 +326,6 @@ if (!datos_actuales_precios || !datos_actuales_zarpe) {
 
 ```
 
-
-
 ```{r riesgo-del-dia-merluza-comun, echo=FALSE, results='asis'}
 # Evaluación combinada de riesgo de precio y zarpe
 
@@ -359,8 +361,6 @@ cat('<hr>')
 
 ```
 
-
-
 ```{r precio-promedio-merluza, echo=FALSE, results='asis'}
 ## Cuarto Producto Grafico de Precio Promedio de Merluza en el mes
 # Agrupar los datos por FECHA y calcular el precio promedio de la caja por dÃ­a
@@ -373,6 +373,41 @@ merluza_comun_datos_precios <- datos_precios_30_dias %>%
 
 ```
 
+
+<div style="font-size:24px; font-weight:bold;">
+  Resumen de Cometidos por Oficina
+</div>
+
+```{r tabla_gesfip01, fig.height=5, fig.width=12, message=FALSE, warning=FALSE, results='asis'}
+
+# Leer el archivo
+summary_table <- read.csv("https://drive.google.com/uc?export=download&id=18KlRYijgoSS4TGzSoM5bv67FXEwa0JmT")
+# Mostrar la tabla con formato adecuado
+summary_table %>%
+  kable("html", caption = "Tabla Resumen de Cometidos por Oficina") %>%
+  kable_styling(full_width = FALSE, position = "left")
+
+
+```
+
+
+<div style="font-size:24px; font-weight:bold;">
+  Resumen de declaraciones y desembarque del dia anterior
+</div>
+```{r tabla_DA, echo=FALSE, fig.height=5, fig.width=12, message=FALSE, warning=FALSE, results='asis'}
+
+# Leer el archivo CSV
+resumen_final <- read.csv("https://drive.google.com/uc?export=download&id=18RDvU4z3JTqylai8BFh1I0mMTL6cXUP-")
+
+# Mostrar la tabla combinada
+resumen_final %>%
+  kable("html", caption = "Resumen Combinado de Desembarques y Declaraciones por Especie y Caleta (Ayer)") %>%
+  kable_styling(full_width = FALSE, position = "left")
+
+
+
+
+```
 <div style="font-size:24px; font-weight:bold;">
   Gráfico Precio promedio merluza común en los ultimos 30 días (TPM)
 </div>
