@@ -2,7 +2,7 @@ name: Run R Script and Generate Report
 
 on:
   schedule:
-    - cron: '0 * * * *'  # Ejecuta cada una hora
+   - cron: '0,30 * * * *'  # Esto se ejecuta cada 30 minutos
 jobs:
   run-r-script:
     runs-on: ubuntu-latest
