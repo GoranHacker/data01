@@ -41,7 +41,7 @@ library(googledrive)
 orden_especies <- c("MERLUZA COMUN", "MERLUZA AUSTRAL", "REINETA", "CONGRIO DORADO", "JUREL", "LOCOS", "CHORITO", "ALMEJA")
 
 # Procesamiento de datos climáticos
-datos_clima <- read.csv("https://drive.google.com/uc?export=download&id=108uG-B2gH5sGlmTc3Gv68XiUMNW943GE")
+datos_clima <- read.csv("https://drive.google.com/uc?export=download&id=1RYHtpaPXfGTMkATtPZ-FDN5gS_PyYU5q")
 names(datos_clima)[names(datos_clima) == "X...Place"] <- "Place"
 
 # Procesamiento de datos de precios
