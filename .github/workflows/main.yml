@@ -2,7 +2,7 @@ name: Run R Script and Generate Report
 
 on:
   schedule:
-   - cron: '0,30 * * * *'  # Esto se ejecuta cada 30 minutos
+   - cron: '0 0 * * *'  # Esto se ejecuta a la medianoche
   workflow_dispatch:  # Permite la ejecución manual del workflow
 
 jobs:
