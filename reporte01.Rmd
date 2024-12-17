@@ -1,10 +1,9 @@
 ---
 title: "Informe diario de riesgo"
-author: "Grupo Estrategico Macrozonal Merluza Común GEMM"
+author: "Unidad de Inteligencia / SECOS"
 date: "`r Sys.Date()`"
 output:
-  pdf_document: default
-  html_document:
+    html_document: default
     self_contained: true
     output_file: index.html
 ---
