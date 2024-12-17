@@ -3,6 +3,7 @@ title: "Informe diario de riesgo"
 author: "Grupo Estrategico Macrozonal Merluza Común GEMM"
 date: "`r Sys.Date()`"
 output:
+  pdf_document: default
   html_document:
     self_contained: true
     output_file: index.html
@@ -356,7 +357,7 @@ Operativos de Fiscalización
 
 ```{r tabla_gesfip01, echo=FALSE, fig.height=5, fig.width=12, message=FALSE, warning=FALSE, results='asis'}
 # Leer y mostrar la tabla resumen de cometidos por oficina
-summary_table <- read.csv("https://drive.google.com/uc?export=download&id=1BCXpe1tsk1f8P094b9gGI6ydzpfuP7_0")
+summary_table <- read.csv("https://drive.google.com/uc?export=download&id=12OX064jmk4HYEYWnyq_lVWoB3-tfDycd")
 summary_table %>%
   kable("html", caption = "Tabla Resumen de Cometidos por Oficina") %>%
   kable_styling(full_width = FALSE, position = "left")
@@ -383,6 +384,5 @@ p <- ggplot(data = merluza_comun_datos_precios, aes(x = FECHA, y = Precio_Promed
   scale_x_date(date_breaks = "1 day", date_labels = "%d-%b")
 
 # Convirtiendo el gráfico ggplot a plotly para interactividad
-Grafico_Precio_Merluza_Comun_30dias <- ggplotly(p)
-Grafico_Precio_Merluza_Comun_30dias
+p
 ```
