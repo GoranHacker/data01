@@ -36,12 +36,19 @@ jobs:
             libfontconfig1 \
             libfreetype6 \
             texlive \
-            texlive-latex-extra  # Necesario para PDF con kableExtra
-      
-      - name: Install missing R packages
+            texlive-latex-extra
+
+      - name: Install missing R dependencies
         run: |
-          Rscript -e "if (!requireNamespace('kableExtra', quietly = TRUE)) install.packages('kableExtra', dependencies = TRUE, repos='http://cran.rstudio.com')"
-          Rscript -e "install.packages(c('rmarkdown', 'tidyverse', 'httr', 'dplyr', 'readxl', 'knitr', 'tidyr', 'ggplot2', 'plotly', 'readr', 'DT', 'RODBC', 'formattable', 'googledrive', 'rvest'), dependencies = TRUE, repos='http://cran.rstudio.com')"
+          Rscript -e "install.packages(c('ragg', 'systemfonts', 'textshaping'), dependencies = TRUE, repos='http://cran.rstudio.com')"
+
+      - name: Install R packages
+        run: |
+          Rscript -e "install.packages(c('tidyverse', 'rmarkdown', 'httr', 'dplyr', 'readxl', 'knitr', 'tidyr', 'ggplot2', 'plotly', 'readr', 'DT', 'RODBC', 'formattable', 'googledrive', 'rvest'), dependencies = TRUE, repos='http://cran.rstudio.com')"
+
+      - name: Install kableExtra separately
+        run: |
+          Rscript -e "install.packages('kableExtra', dependencies = TRUE, repos='http://cran.rstudio.com')"
 
       - name: Run R script and Render Report
         run: |
