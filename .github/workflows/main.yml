@@ -2,15 +2,15 @@ name: Run R Script and Generate Report
 
 on:
   schedule:
-   - cron: '0 0 * * *'  # Esto se ejecuta a la medianoche
-  workflow_dispatch:  # Permite la ejecución manual del workflow
+   - cron: '0 0 * * *'  # Se ejecuta a la medianoche
+  workflow_dispatch:  # Permite ejecución manual del workflow
 
 jobs:
   run-r-script:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3  # Usa v3 en vez de v2
       
       - name: Setup R
         uses: r-lib/actions/setup-r@v2
@@ -18,17 +18,18 @@ jobs:
           r-version: '4.1.0'
       
       - name: Cache R packages
-        uses: actions/cache@v2
+        uses: actions/cache@v3  # Usa v3 en vez de v2
         with:
-          path: ${{ runner.tool_cache }}/R
+          path: ~/.cache/R
           key: ${{ runner.os }}-r-${{ hashFiles('**/reporte01.Rmd') }}
-          restore-keys: ${{ runner.os }}-r-
+          restore-keys: |
+            ${{ runner.os }}-r-
 
       - name: Install system dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y pandoc libcurl4-openssl-dev libssl-dev libxml2-dev
-      
+          
       - name: Install R packages
         run: |
           Rscript -e "install.packages(c('rmarkdown', 'tidyverse', 'httr', 'dplyr', 'readxl', 'knitr', 'kableExtra', 'tidyr', 'ggplot2', 'plotly', 'readr', 'DT', 'RODBC', 'formattable', 'googledrive', 'rvest'), dependencies = TRUE)"
@@ -44,5 +45,5 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.MY_GITHUB_PAT }}
-          publish_dir: ./  # Asegúrate de que el directorio aquí coincida con donde tu archivo HTML es generado
-          publish_branch: gh-pages  # ensure it's targeting the gh-pages branch
+          publish_dir: ./
+          publish_branch: gh-pages
