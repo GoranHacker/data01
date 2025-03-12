@@ -18,7 +18,7 @@ jobs:
           r-version: '4.2.0'  # Usa una versión reciente de R
 
       - name: Cache R packages
-        uses: actions/cache@v3  # Usa la última versión
+        uses: actions/cache@v3
         with:
           path: ~/.cache/R
           key: ${{ runner.os }}-r-${{ hashFiles('**/reporte01.Rmd') }}
@@ -39,7 +39,9 @@ jobs:
             texlive-latex-extra \
             libmagick++-dev \
             libharfbuzz-dev \
-            libfribidi-dev
+            libfribidi-dev \
+            unixODBC \
+            unixODBC-dev
 
       - name: Install missing R dependencies
         run: |
@@ -47,7 +49,11 @@ jobs:
 
       - name: Install R packages
         run: |
-          Rscript -e "install.packages(c('tidyverse', 'rmarkdown', 'httr', 'dplyr', 'readxl', 'knitr', 'tidyr', 'ggplot2', 'plotly', 'readr', 'DT', 'RODBC', 'formattable', 'googledrive', 'rvest'), dependencies = TRUE, repos='http://cran.rstudio.com')"
+          Rscript -e "install.packages(c('tidyverse', 'rmarkdown', 'httr', 'dplyr', 'readxl', 'knitr', 'tidyr', 'ggplot2', 'plotly', 'readr', 'DT', 'formattable', 'googledrive', 'rvest'), dependencies = TRUE, repos='http://cran.rstudio.com')"
+
+      - name: Install RODBC separately
+        run: |
+          Rscript -e "install.packages('RODBC', dependencies = TRUE, repos='http://cran.rstudio.com')"
 
       - name: Install kableExtra separately
         run: |
