@@ -6,6 +6,7 @@ output:
     html_document: default
     self_contained: true
     output_file: index.html
+
 ---
 <hr style="border: none; height: 3px; background-color: black;">
 <div style="font-family: Arial, sans-serif; font-size: 16px;">
@@ -109,6 +110,7 @@ temp_file_ZARPE <- tempfile(fileext = ".xlsx")
 download.file(excel_zARPE_url, temp_file_ZARPE, mode = "wb")
 datos_zarpe <- read_excel(temp_file_ZARPE)
 unlink(temp_file_ZARPE)
+datos_zarpe$FECHA = as.Date(as.numeric(datos_zarpe$FECHA), origin = "1899-12-30")
 
 # Identificar y filtrar por la última fecha en zarpes
 ultima_fecha_zarpe <- max(datos_zarpe$FECHA)
@@ -182,8 +184,10 @@ for (caleta in names(caletas_alertas)) {
   }
 }
 
+
 # Verificación de fechas de datos actualizados
 datos_actuales_precios <- max(datos_precios$FECHA) == fecha_actual
+datos_zarpe <- datos_zarpe[!is.na(datos_zarpe$FECHA), ]
 datos_actuales_zarpe <- max(datos_zarpe$FECHA) == fecha_actual
 
 # Preparación de datos para gráfico de precio promedio de Merluza Común
@@ -272,7 +276,8 @@ if (!condiciones_adversas) {
 
 ```{r tabla_DA, echo=FALSE, fig.height=5, fig.width=12, message=FALSE, warning=FALSE, results='asis'}
 # Leer y mostrar la tabla resumen de desembarques y declaraciones
-resumen_final <- read.csv("https://drive.google.com/uc?export=download&id=1msGn85oD0pTDbf9Pzyf3nURyK-xeRS9x")
+resumen_final <- read.csv("https://drive.google.com/uc?export=download&id=1WjuribluujR7OurVmHlNFJblquPXkj-t")
+
 resumen_final %>%
   kable("html", caption = "Resumen Combinado de Desembarques y Declaraciones por Especie y Caleta (Ayer)") %>%
   kable_styling(full_width = FALSE, position = "left")
@@ -356,7 +361,7 @@ Operativos de Fiscalización
 
 ```{r tabla_gesfip01, echo=FALSE, fig.height=5, fig.width=12, message=FALSE, warning=FALSE, results='asis'}
 # Leer y mostrar la tabla resumen de cometidos por oficina
-summary_table <- read.csv("https://drive.google.com/uc?export=download&id=12OX064jmk4HYEYWnyq_lVWoB3-tfDycd")
+summary_table <- read.csv("https://drive.google.com/uc?export=download&id=1GSNdrOYS2LWKu26LAgXp8AqJ2XjYbCWo")
 summary_table %>%
   kable("html", caption = "Tabla Resumen de Cometidos por Oficina") %>%
   kable_styling(full_width = FALSE, position = "left")
